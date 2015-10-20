@@ -4,6 +4,13 @@
  */
 class Sponsorship_Manager {
 	/**
+	 * Taxonomy of the Sponsorship Manager
+	 *
+	 * @var string
+	 */
+	public $taxonomy = 'sponsorship_campaign';
+
+	/**
 	 * @var Sponsorship_Manager
 	 */
 	protected static $instance;
@@ -47,7 +54,7 @@ class Sponsorship_Manager {
 			$post = get_post();
 		}
 
-		$sponsor = get_the_terms( $post->ID, 'sponsorship_campaign' );
+		$sponsor = get_the_terms( $post->ID, $this->taxonomy );
 		if ( ! empty( $sponsor ) ) {
 			return array_shift( $sponsor );
 		}
