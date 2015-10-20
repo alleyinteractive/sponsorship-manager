@@ -18,16 +18,16 @@ function sponsorship_manager_fm_tax_sponsorship_campaign_sponsorship_campaign_di
 add_action( 'fm_term_sponsorship_campaign', 'sponsorship_manager_fm_tax_sponsorship_campaign_sponsorship_campaign_display' );
 /* end fm:tax_sponsorship_campaign:sponsorship-campaign-display */
 
-/* begin fm:sponsorship-campaign-post-fields */
+/* begin fm:sponsorship-campaign-info */
 /**
- * `sponsorship-campaign-post-fields` Fieldmanager fields.
+ * `sponsorship-campaign-info` Fieldmanager fields.
  */
-function sponsorship_manager_fm_sponsorship_campaign_post_fields() {
+function sponsorship_manager_fm_sponsorship_campaign_info() {
 	$fm = new Fieldmanager_Group( array(
-		'name' => 'sponsorship-campaign-post-fields',
+		'name' => 'sponsorship-campaign-info',
 		'children' => array(
 			'sponsorship-campaign' => new Fieldmanager_Select( array(
-				'title' => __( 'Select Campaign', 'sponsorship-manager' ),
+				'label' => __( 'Select Campaign', 'sponsorship-manager' ),
 				'first_empty' => true,
 				'datasource' => new Fieldmanager_Datasource_Term( array(
 					'taxonomy' => 'sponsorship_campaign',
@@ -38,21 +38,25 @@ function sponsorship_manager_fm_sponsorship_campaign_post_fields() {
 				) ),
 			) ),
 			'dfp-tracking-pixel' => new Fieldmanager_Link( array(
-				'title' => __( 'DFP Tracking Pixel URL', 'sponsorship-manager' ),
+				'label' => __( 'DFP Tracking Pixel URL', 'sponsorship-manager' ),
 				'description' => __( "Include 'c' parameter; cache busting will be handled on output", 'sponsorship-manager' ),
 			) ),
 			'hide-from-recent-posts' => new Fieldmanager_Checkbox( array(
-				'title' => __( 'Hide from Recent Posts queries', 'sponsorship-manager' ),
+				'label' => __( 'Hide from Recent Posts queries', 'sponsorship-manager' ),
 				'checked_value' => true,
 				'default_value' => true,
 			) ),
 			'hide-from-feeds' => new Fieldmanager_Checkbox( array(
-				'title' => __( 'Hide from feed queries (RSS, etc)', 'sponsorship-manager' ),
+				'label' => __( 'Hide from feed queries (RSS, etc.)', 'sponsorship-manager' ),
 				'checked_value' => true,
 				'default_value' => true,
 			) ),
 		),
 	) );
-	$fm->add_meta_box( __( 'Sponsorship Campaign Fields', 'sponsorship-manager' ), array( '' ) );
+	$fm->add_meta_box( __( 'Sponsorship Campaign', 'sponsorship-manager' ), sponsorship_manager()->get_enabled_post_types() );
 }
-/* end fm:sponsorship-campaign-post-fields */
+
+foreach ( sponsorship_manager()->get_enabled_post_types() as $post_type ) {
+	add_action( 'fm_post_' . $post_type, 'sponsorship_manager_fm_sponsorship_campaign_info' );
+}
+/* end fm:sponsorship-campaign-info */
