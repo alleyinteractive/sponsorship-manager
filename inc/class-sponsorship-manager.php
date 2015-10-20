@@ -15,6 +15,14 @@ class Sponsorship_Manager {
 
 	}
 
+	public function __clone() {
+		wp_die( __( "Please don't __clone ", 'foodrepublic' ) . __CLASS__ );
+	}
+
+	public function __wakeup() {
+		wp_die( __( "Please don't __wakeup ", 'foodrepublic' ) . __CLASS__ );
+	}
+
 	/**
 	 * Retrieve Singleton Instance
 	 *
