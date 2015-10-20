@@ -1,0 +1,35 @@
+{
+	"object_types" : ["faking-it"],
+	"singular" : "Sponsorship Campaign",
+	"plural" : "Sponsorship Campaigns",
+	"hierarchical" : true,
+	"public" : false,
+	"show_ui" : true,
+	"show_in_menu" : true,
+	"show_in_nav_menus" : false,
+	"show_tagcloud" : false,
+	"show_in_quick_edit" : true,
+	"meta_box_cb" : false,
+	"show_admin_column" : false,
+	"rewrite" : false,
+	"fields" : {
+		"sponsorship-campaign-display" : {
+			"type" : "group",
+			"title" : {"__" : "Display Fields"},
+			"children" : {
+				"logo" : {
+					"type" : "media",
+					"label" : {"__" : "Campaign Logo"}
+				},
+				"featured-image" : {
+					"type" : "media",
+					"label" : {"__" : "Campaign Featured Image"}
+				},
+				"description" : {
+					"type" : "richtextarea",
+					"label" : "Campaign Description"
+				}
+			}
+		}
+	}
+}

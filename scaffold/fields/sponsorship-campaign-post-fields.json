@@ -1,0 +1,40 @@
+{
+	"contexts" : [{
+		"type" : "post",
+		"post_types" : [],
+		"title" : {"__":"Sponsorship Campaign Fields"}
+	}],
+	"type" : "group",
+	"children" : {
+		"sponsorship-campaign" : {
+			"title" : {"__" : "Select Campaign"},
+			"type" : "select",
+			"first_empty" : true,
+			"datasource" : {
+				"type" : "term",
+				"taxonomy" : "sponsorship_campaign",
+				"taxonomy_hierarchical" : true,
+				"taxonomy_hierarchical_depth" : 2,
+				"taxonomy_save_to_terms" : true,
+				"only_save_to_taxonomy" : true
+			}
+		},
+		"dfp-tracking-pixel" : {
+			"title" : {"__" : "DFP Tracking Pixel URL"},
+			"type" : "link",
+			"description" : {"__" : "Include 'c' parameter; cache busting will be handled on output"}
+		},
+		"hide-from-recent-posts" : {
+			"title" : {"__" : "Hide from Recent Posts queries"},
+			"type" : "checkbox",
+			"checked_value" : true,
+			"default_value" : true
+		},
+		"hide-from-feeds" : {
+			"title" : {"__" : "Hide from feed queries (RSS, etc)"},
+			"type" : "checkbox",
+			"checked_value" : true,
+			"default_value" : true
+		}
+	}
+}
