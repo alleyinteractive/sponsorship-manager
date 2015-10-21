@@ -1,11 +1,20 @@
 <?php
 /**
+ * Retrieve the current sponsor
+ *
+ * @return object
+ */
+function sponsorship_get_sponsor() {
+	return sponsorship_manager()->get_sponsor();
+}
+
+/**
  * Get sponsorship campaign for a post
  *
  * @param WP_Post|void Optional post object
  * @return object|void Sponsor Term or null if one isn't set.
  */
-function sponsorship_get_sponsor( $post = null ) {
+function sponsorship_get_post_sponsor( $post = null ) {
 	return sponsorship_manager()->get_post_sponsor( $post );
 }
 
@@ -33,4 +42,24 @@ function sponsorship_get_sponsor_image_url( $name, $size = 'full', $sponsor = nu
 	if ( ! empty( $image[0] ) ) {
 		return $image[0];
 	}
+}
+
+/**
+ * Retrieve the URL to a Sponsor's External URL
+ *
+ * @param  object $sponsor Optional sponsor. Defaults to current post sponsor
+ * @return string
+ */
+function sponsorship_get_sponsor_url( $sponsor = null ) {
+	return sponsorship_manager()->get_sponsor_url( $sponsor );
+}
+
+/**
+ * Retrieve the URL to a Sponsor's Hub
+ *
+ * @param  object $sponsor Optional sponsor. Defaults to current post sponsor
+ * @return string
+ */
+function sponsorship_get_sponsor_hub_url( $sponsor = null ) {
+	return sponsorship_manager()->get_sponsor_hub_url( $sponsor );
 }

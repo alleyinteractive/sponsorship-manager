@@ -10,6 +10,7 @@ function sponsorship_manager_fm_tax_sponsorship_campaign_sponsorship_campaign_di
 		'children' => array(
 			'logo' => new Fieldmanager_Media( __( 'Campaign Logo', 'sponsorship-manager' ) ),
 			'featured-image' => new Fieldmanager_Media( __( 'Campaign Featured Image', 'sponsorship-manager' ) ),
+			'external-url' => new Fieldmanager_Link( __( 'Campaign External URL', 'sponsorship-manager' ) ),
 			'description' => new Fieldmanager_RichTextArea( __( 'Campaign Description', 'sponsorship-manager' ) ),
 		),
 	) );

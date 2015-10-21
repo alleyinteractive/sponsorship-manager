@@ -16,18 +16,26 @@ class Sponsorship_Manager {
 	protected static $instance;
 
 	/**
+	 * Sponsor Object
+	 *
+	 * @var object
+	 */
+	protected $sponsor;
+
+	/**
 	 * Protected Contructor
 	 */
 	protected function __construct() {
-
+		add_action( 'the_post', array( $this, 'set_sponsor_from_post' ) );
+		add_filter( 'the_content', array( $this, 'insert_tracking_pixel_code' ) );
 	}
 
 	public function __clone() {
-		wp_die( __( "Please don't __clone ", 'foodrepublic' ) . __CLASS__ );
+		wp_die( __( "Please don't __clone ", 'sponsorship-manager' ) . __CLASS__ );
 	}
 
 	public function __wakeup() {
-		wp_die( __( "Please don't __wakeup ", 'foodrepublic' ) . __CLASS__ );
+		wp_die( __( "Please don't __wakeup ", 'sponsorship-manager' ) . __CLASS__ );
 	}
 
 	/**
@@ -44,6 +52,48 @@ class Sponsorship_Manager {
 	}
 
 	/**
+	 * Retrieve enabled post types for Sponsorship Manager
+	 *
+	 * @return array
+	 */
+	public function get_enabled_post_types() {
+		return (array) apply_filters( 'sponsorship_manager_enabled_post_types', array( 'post', 'video' ) );
+	}
+
+	/**
+	 * Set the current sponsor
+	 *
+	 * @param object
+	 * @return void
+	 */
+	public function set_sponsor( $sponsor = null ) {
+		if ( ! empty( $sponsor->taxonomy ) && $this->taxonomy === $sponsor->taxonomy ) {
+			$this->sponsor = $sponsor;
+		} else {
+			$this->sponsor = null;
+		}
+	}
+
+	/**
+	 * Retrieve the current sponsor
+	 *
+	 * @return object|void
+	 */
+	public function get_sponsor() {
+		return $this->sponsor;
+	}
+
+	/**
+	 * Set the current sponsor to a post's sponsor
+	 *
+	 * @return object
+	 */
+	public function set_sponsor_from_post( $post = null ) {
+		$this->set_sponsor( $this->get_post_sponsor( $post ) );
+		return $this->get_sponsor();
+	}
+
+	/**
 	 * Retrieve the post's sponsor
 	 *
 	 * @param WP_Post|void Optional post object
@@ -55,6 +105,7 @@ class Sponsorship_Manager {
 		}
 
 		$sponsor = get_the_terms( $post->ID, $this->taxonomy );
+
 		if ( ! empty( $sponsor ) ) {
 			return array_shift( $sponsor );
 		}
@@ -67,7 +118,7 @@ class Sponsorship_Manager {
 	 */
 	public function get_sponsor_parent( $sponsor = null ) {
 		if ( empty( $sponsor ) ) {
-			$sponsor = $this->get_post_sponsor();
+			$sponsor = $this->get_sponsor();
 		}
 
 		if ( ! empty( $sponsor->parent ) ) {
@@ -77,13 +128,13 @@ class Sponsorship_Manager {
 	}
 
 	/**
-	 * Retrieve the sponsor's information from its post meta
+	 * Retrieve the sponsorship campaign from its taxonomy
 	 *
 	 * @return array
 	 */
-	public function get_sponsor_info( $sponsor = null ) {
+	protected function get_sponsor_info( $sponsor = null ) {
 		if ( empty( $sponsor ) ) {
-			$sponsor = $this->get_post_sponsor();
+			$sponsor = $this->get_sponsor();
 		} elseif ( ! is_object( $sponsor ) ) {
 			$sponsor = get_term( $sponsor, 'sponsor' );
 		}
@@ -91,6 +142,19 @@ class Sponsorship_Manager {
 		if ( ! empty( $sponsor->term_id ) ) {
 			return fm_get_term_meta( $sponsor->term_id, $sponsor->taxonomy, 'sponsorship-campaign-display', true );
 		}
+	}
+
+	/**
+	 * Retrieve Sponsorship Campaign information from the current post
+	 *
+	 * @return array
+	 */
+	protected function get_post_sponsor_info( $post = null ) {
+		if ( null === $post ) {
+			$post = get_post();
+		}
+
+		return get_post_meta( $post->ID, 'sponsorship-campaign-info', true );
 	}
 
 	/**
@@ -114,14 +178,32 @@ class Sponsorship_Manager {
 	}
 
 	/**
-	 * Retrieve the sponsor's URL
+	 * Retrieve the external sponsor's URL
 	 *
 	 * @param  object|int Optional sponsor Object or ID. Defaults to current post sponsor
-	 * @return string|null Sponsor URL or null if not found.
+	 * @return string|null Sponsor's external URL or null if not found.
 	 */
 	public function get_sponsor_url( $sponsor = null ) {
 		$info = $this->get_sponsor_info( $sponsor );
-		return ( ! empty( $info['url'] ) ) ? $info['url'] : null;
+		return ( ! empty( $info['external-url'] ) ) ? $info['external-url'] : null;
+	}
+
+	/**
+	 *  Retrieve the sponsor's hub
+	 *
+	 * @param  object|int Optional sponsor Object or ID. Defaults to current post sponsor
+	 * @return string|null Sponsor's hub URL or null if not found.
+	 */
+	public function get_sponsor_hub_url( $sponsor = null ) {
+		if ( empty( $sponsor->term_id ) ) {
+			$sponsor = $this->get_sponsor();
+
+			if ( empty( $sponsor->term_id ) ) {
+				return;
+			}
+		}
+
+		return get_term_link( $sponsor );
 	}
 
 	/**
@@ -131,9 +213,9 @@ class Sponsorship_Manager {
 	 * @return string|null Tracking pixel URL or null if not found.
 	 */
 	public function get_sponsor_tracking_pixel( $sponsor = null ) {
-		$info = $this->get_sponsor_info( $sponsor );
-		if ( ! empty( $info['tracking_pixel_url'] ) ) {
-			return add_query_arg( array( 'c' => wp_rand() ), $info['tracking_pixel_url'] );
+		$info = $this->get_post_sponsor_info( $sponsor );
+		if ( ! empty( $info['dfp-tracking-pixel'] ) ) {
+			return add_query_arg( array( 'c' => wp_rand() ), $info['dfp-tracking-pixel'] );
 		}
 	}
 
@@ -141,11 +223,12 @@ class Sponsorship_Manager {
 	 * Insert the sponsored content tracking pixel
 	 *
 	 * @param string $content Post content
-	 * @param object $sponsor Optional sponsor. Defaults to the current post's sponsor
 	 */
-	public function insert_tracking_pixel_code( $content, $sponsor = null ) {
-		$dfp_pixel_url = $this->get_sponsor_tracking_pixel( $sponsor );
-
+	public function insert_tracking_pixel_code( $content ) {
+		$dfp_pixel_url = $this->get_sponsor_tracking_pixel();
+		if ( empty( $dfp_pixel_url ) ) {
+			return $content;
+		}
 		ob_start();
 		?>
 		<script>
@@ -153,23 +236,15 @@ class Sponsorship_Manager {
 			var sponsorshipPixel = document.createElement( 'img' );
 			sponsorshipPixel.src = sponsorshipPixelUrl;
 			if ( document.body ) {
+				console.log(sponsorshipPixel);
 				document.body.appendChild( sponsorshipPixel );
 			}
 		</script>
 		<?php
-		$content = ob_get_contents();
+		$content .= ob_get_contents();
 		ob_end_clean();
 
 		return $content;
-	}
-
-	/**
-	 * Retrieve enabled post types for Sponsorship Manager
-	 *
-	 * @return array
-	 */
-	public function get_enabled_post_types() {
-		return (array) apply_filters( 'sponsorship_manager_enabled_post_types', array( 'post', 'video' ) );
 	}
 }
 

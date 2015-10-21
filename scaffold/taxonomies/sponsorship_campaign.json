@@ -27,6 +27,10 @@
 					"type" : "media",
 					"label" : {"__" : "Campaign Featured Image"}
 				},
+				"external-url": {
+					"type": "link",
+					"label": {"__": "Campaign External URL"}
+				},
 				"description" : {
 					"type" : "richtextarea",
 					"label" : "Campaign Description"
