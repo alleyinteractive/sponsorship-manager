@@ -23,6 +23,9 @@ abstract class Sponsorship_Manager_Taxonomy {
 	 * Constructor.
 	 */
 	public function __construct() {
+		// Set object types from the manager
+		$this->object_types = sponsorship_manager()->get_enabled_post_types();
+
 		// Create the taxonomy
 		add_action( 'init', array( $this, 'create_taxonomy' ) );
 	}

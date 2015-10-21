@@ -1,6 +1,8 @@
 <?php
 /**
  * Sponsorship Manager
+ *
+ * @package Sponsorship
  */
 class Sponsorship_Manager {
 	/**
@@ -11,23 +13,41 @@ class Sponsorship_Manager {
 	public $taxonomy = 'sponsorship_campaign';
 
 	/**
+	 * Singleton Instance
+	 *
 	 * @var Sponsorship_Manager
 	 */
 	protected static $instance;
 
 	/**
-	 * Sponsor Object
+	 * Current Sponsor Term Object
 	 *
 	 * @var object
 	 */
 	protected $sponsor;
 
 	/**
+	 * Term for hiding posts from recent posts
+	 *
+	 * @var string
+	 */
+	protected $term_hidden_from_loop = '_hidden_from_loop';
+
+	/**
+	 * Term slug for hiding post from feed
+	 *
+	 * @var string
+	 */
+	protected $term_hidden_from_feed = '_hidden_from_feed';
+
+	/**
 	 * Protected Contructor
 	 */
 	protected function __construct() {
+		add_action( 'save_post', array( $this, 'hide_posts_on_save' ), 10, 2 );
 		add_action( 'the_post', array( $this, 'set_sponsor_from_post' ) );
 		add_filter( 'the_content', array( $this, 'insert_tracking_pixel_code' ) );
+		add_filter( 'pre_get_posts', array( $this, 'hide_campaign_posts' ) );
 	}
 
 	public function __clone() {
@@ -47,7 +67,6 @@ class Sponsorship_Manager {
 		if ( empty( self::$instance ) ) {
 			self::$instance = new self;
 		}
-
 		return self::$instance;
 	}
 
@@ -115,6 +134,7 @@ class Sponsorship_Manager {
 	 * Retrieve parent sponsor
 	 *
 	 * @param object $sponsor Optional sponsor object. Defaults to current post's sponsor
+	 * @return object Sponsor's parent term
 	 */
 	public function get_sponsor_parent( $sponsor = null ) {
 		if ( empty( $sponsor ) ) {
@@ -123,7 +143,7 @@ class Sponsorship_Manager {
 
 		if ( ! empty( $sponsor->parent ) ) {
 			// Retrieve sponsor parent
-			// ...
+			return get_term( $sponsor->parent, $this->taxonomy );
 		}
 	}
 
@@ -245,6 +265,75 @@ class Sponsorship_Manager {
 		ob_end_clean();
 
 		return $content;
+	}
+
+	/**
+	 * Create campaign post term if it doesn't exist
+	 *
+	 * @param  string $slug Term slug
+	 * @param  string $taxonomy Taxonomy name. Defaults to 'sponsorship_campaign_posts'
+	 * @return object
+	 */
+	protected function get_or_create_term( $slug, $taxonomy = 'sponsorship_campaign_posts' ) {
+		$term = get_term_by( 'slug', $slug, $taxonomy );
+		if ( ! empty( $term ) ) {
+			return $term;
+		} else {
+			$term_data = wp_insert_term( $slug, $taxonomy );
+			if ( is_wp_error( $term_data ) || empty( $term_data['term_id'] ) ) {
+				return false;
+			}
+			return ( ! empty( $term_data['term_id'] ) ) ? get_term( $term_data['term_id'], $taxonomy ) : false;
+		}
+	}
+
+	/**
+	 * Mark a post as hidden with the sponsorship campaign posts taxonomy
+	 *
+	 * @param int $post_id
+	 * @param WP_Post $post
+	 */
+	public function hide_posts_on_save( $post_id, WP_Post $post ) {
+		if ( 'publish' !== $post->post_type ) {
+			return;
+		}
+
+		// Default hidden status
+		$hidden_from_loop = $hidden_from_feed = false;
+
+		$sponsor_info = $this->get_post_sponsor_info( $post );
+		var_dump($sponsor_info);exit;
+	}
+
+	/**
+	 * Omit campaign posts from the main loop
+	 *
+	 * @param WP_Query $query
+	 */
+	public function hide_campaign_posts( WP_Query $query ) {
+		if ( ! $query->is_main_query() || ( ! $query->is_archive() && ! $query->is_home() && ! $query->is_feed() ) ) {
+			return $query;
+		}
+
+
+		// Term to hide posts from main loop
+		if ( $query->is_archive() || $query->is_home() ) {
+			$hidden_posts_term = $this->get_or_create_term( $this->term_hidden_from_loop );
+		} elseif ( $query->is_feed() ) {
+			$hidden_posts_term = $this->get_or_create_term( $this->term_hidden_from_feed );
+		} else {
+			return;
+		}
+
+		$tax_query = array(
+			'taxonomy' => 'sponsorship_campaign_posts',
+			'terms'    => array( $hidden_posts_term->term_id ),
+			'operator' => 'NOT IN',
+		);
+
+		$query->tax_query->queries[] = $tax_query;
+		$query->query_vars['tax_query'] = $query->tax_query->queries;
+		return $query;
 	}
 }
 
