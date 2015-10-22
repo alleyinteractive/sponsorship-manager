@@ -44,10 +44,12 @@ class Sponsorship_Manager {
 	 * Protected Contructor
 	 */
 	protected function __construct() {
-		add_action( 'save_post', array( $this, 'hide_posts_on_save' ), 10, 2 );
 		add_action( 'the_post', array( $this, 'set_sponsor_from_post' ) );
 		add_filter( 'the_content', array( $this, 'insert_tracking_pixel_code' ) );
+
+		// Hide posts from the loop/feed
 		add_filter( 'pre_get_posts', array( $this, 'hide_campaign_posts' ) );
+		add_action( 'save_post', array( $this, 'hide_posts_on_save' ), 99, 2 );
 	}
 
 	public function __clone() {
@@ -286,7 +288,6 @@ class Sponsorship_Manager {
 			return ( ! empty( $term_data['term_id'] ) ) ? get_term( $term_data['term_id'], $taxonomy ) : false;
 		}
 	}
-
 	/**
 	 * Mark a post as hidden with the sponsorship campaign posts taxonomy
 	 *
@@ -294,15 +295,30 @@ class Sponsorship_Manager {
 	 * @param WP_Post $post
 	 */
 	public function hide_posts_on_save( $post_id, WP_Post $post ) {
-		if ( 'publish' !== $post->post_type ) {
+		if ( 'publish' !== $post->post_status || ! in_array( $post->post_type, $this->get_enabled_post_types() ) ) {
 			return;
 		}
 
 		// Default hidden status
 		$hidden_from_loop = $hidden_from_feed = false;
 
-		$sponsor_info = $this->get_post_sponsor_info( $post );
-		var_dump($sponsor_info);exit;
+		// Check if the post is assigned to a campaign (if not, don't hide it at all)
+		if ( has_term( '', $this->taxonomy, $post ) ) {
+			$sponsor_info = $this->get_post_sponsor_info( $post );
+			$hidden_from_loop = ( ! empty( $sponsor_info['hide-from-recent-posts'] ) && '1' === $sponsor_info['hide-from-recent-posts'] );
+			$hidden_from_feed = ( ! empty( $sponsor_info['hide-from-feeds'] ) && '1' === $sponsor_info['hide-from-feeds'] );
+		}
+		
+		// Build the terms for this post
+		$terms = array();
+		if ( $hidden_from_loop ) {
+			$terms[] = $this->get_or_create_term( $this->term_hidden_from_loop )->term_id;
+		}
+		if ( $hidden_from_feed ) {
+			$terms[] = $this->get_or_create_term( $this->term_hidden_from_feed )->term_id;
+		}
+
+		wp_set_object_terms( $post->ID, $terms, 'sponsorship_campaign_posts', false );
 	}
 
 	/**
@@ -314,7 +330,6 @@ class Sponsorship_Manager {
 		if ( ! $query->is_main_query() || ( ! $query->is_archive() && ! $query->is_home() && ! $query->is_feed() ) ) {
 			return $query;
 		}
-
 
 		// Term to hide posts from main loop
 		if ( $query->is_archive() || $query->is_home() ) {
