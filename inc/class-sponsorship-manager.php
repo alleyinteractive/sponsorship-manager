@@ -41,6 +41,13 @@ class Sponsorship_Manager {
 	protected $term_hidden_from_feed = '_hidden_from_feed';
 
 	/**
+	 * Default post types that can be sponsored
+	 *
+	 * @var array
+	 */
+	protected $default_post_types = array( 'post' );
+
+	/**
 	 * Protected Contructor
 	 */
 	protected function __construct() {
@@ -78,7 +85,7 @@ class Sponsorship_Manager {
 	 * @return array
 	 */
 	public function get_enabled_post_types() {
-		return (array) apply_filters( 'sponsorship_manager_enabled_post_types', array( 'post', 'video' ) );
+		return (array) apply_filters( 'sponsorship_manager_enabled_post_types', $this->default_post_types );
 	}
 
 	/**
