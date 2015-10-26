@@ -232,6 +232,9 @@ class Sponsorship_Manager {
 			}
 		}
 
+		if ( function_exists( 'wpcom_vip_get_term_link' ) ) {
+			return wpcom_vip_get_term_link( $sponsor );
+		}
 		return get_term_link( $sponsor );
 	}
 
@@ -284,16 +287,21 @@ class Sponsorship_Manager {
 	 * @return object
 	 */
 	protected function get_or_create_term( $slug, $taxonomy = 'sponsorship_campaign_posts' ) {
-		$term = get_term_by( 'slug', $slug, $taxonomy );
+		if ( function_exists( 'wpcom_vip_get_term_by' ) ) {
+			$term = wpcom_vip_get_term_by( 'slug', $slug, $taxonomy );
+		} else {
+			$term = get_term_by( 'slug', $slug, $taxonomy );
+		}
+
 		if ( ! empty( $term ) ) {
 			return $term;
-		} else {
-			$term_data = wp_insert_term( $slug, $taxonomy );
-			if ( is_wp_error( $term_data ) || empty( $term_data['term_id'] ) ) {
-				return false;
-			}
-			return ( ! empty( $term_data['term_id'] ) ) ? get_term( $term_data['term_id'], $taxonomy ) : false;
 		}
+
+		$term_data = wp_insert_term( $slug, $taxonomy );
+		if ( is_wp_error( $term_data ) || empty( $term_data['term_id'] ) ) {
+			return false;
+		}
+		return ( ! empty( $term_data['term_id'] ) ) ? get_term( $term_data['term_id'], $taxonomy ) : false;
 	}
 	/**
 	 * Mark a post as hidden with the sponsorship campaign posts taxonomy
