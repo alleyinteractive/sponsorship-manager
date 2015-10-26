@@ -60,11 +60,11 @@ class Sponsorship_Manager {
 	}
 
 	public function __clone() {
-		wp_die( __( "Please don't __clone ", 'sponsorship-manager' ) . __CLASS__ );
+		wp_die( esc_html__( "Please don't __clone ", 'sponsorship-manager' ) . __CLASS__ );
 	}
 
 	public function __wakeup() {
-		wp_die( __( "Please don't __wakeup ", 'sponsorship-manager' ) . __CLASS__ );
+		wp_die( esc_html__( "Please don't __wakeup ", 'sponsorship-manager' ) . __CLASS__ );
 	}
 
 	/**
@@ -197,7 +197,7 @@ class Sponsorship_Manager {
 	public function get_sponsor_image( $name, $size = 'full', $sponsor = null ) {
 		$info = $this->get_sponsor_info( $sponsor );
 
-		if ( ! empty( $info[ $name ] ) && is_int( $info[ $name] ) ) {
+		if ( ! empty( $info[ $name ] ) && is_int( $info[ $name ] ) ) {
 			$attachment = wp_get_attachment_image_src( $info[ $name ], $size );
 
 			if ( ! empty( $attachment ) ) {
@@ -315,7 +315,7 @@ class Sponsorship_Manager {
 			$hidden_from_loop = ( ! empty( $sponsor_info['hide-from-recent-posts'] ) && '1' === $sponsor_info['hide-from-recent-posts'] );
 			$hidden_from_feed = ( ! empty( $sponsor_info['hide-from-feeds'] ) && '1' === $sponsor_info['hide-from-feeds'] );
 		}
-		
+
 		// Build the terms for this post
 		$terms = array();
 		if ( $hidden_from_loop ) {
