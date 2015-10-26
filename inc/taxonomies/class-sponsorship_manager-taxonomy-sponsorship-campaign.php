@@ -24,7 +24,7 @@ class Sponsorship_Manager_Taxonomy_Sponsorship_Campaign extends Sponsorship_Mana
 	 * Build the taxonomy object.
 	 */
 	public function __construct() {
-		$this->object_types = array( 'faking-it' );
+		$this->object_types = array( 'empty' );
 
 		parent::__construct();
 	}
@@ -52,13 +52,14 @@ class Sponsorship_Manager_Taxonomy_Sponsorship_Campaign extends Sponsorship_Mana
 				'menu_name'             => __( 'Sponsorship Campaigns', 'sponsorship-manager' ),
 			),
 			'hierarchical' => true,
-			'public' => false,
-			'show_ui' => true,
 			'show_in_menu' => true,
+			'show_in_nav_menus' => false,
 			'show_tagcloud' => false,
 			'show_in_quick_edit' => true,
 			'meta_box_cb' => false,
-			'rewrite' => false,
+			'rewrite' => array(
+				'slug' => 'sponsor',
+			),
 		) );
 	}
 }
