@@ -128,8 +128,14 @@ class Sponsorship_Manager {
 	 * @return object|void Sponsor Term or null if one isn't set.
 	 */
 	public function get_post_sponsor( $post = null ) {
-		if ( empty( $post->ID ) ) {
+		if ( is_numeric( $post ) ) {
+			$post = get_post( absint( $post ) );
+		} else if ( empty( $post ) ) {
 			$post = get_post();
+		}
+
+		if ( 'WP_Post' !== get_class( $post ) ) {
+			return;
 		}
 
 		$sponsor = get_the_terms( $post->ID, $this->taxonomy );
