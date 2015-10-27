@@ -60,3 +60,14 @@ function sponsorship_manager_fm_tax_sponsorship_campaign_sponsorship_campaign_di
 }
 add_action( 'fm_term_sponsorship_campaign', 'sponsorship_manager_fm_tax_sponsorship_campaign_sponsorship_campaign_display' );
 /* end fm:tax_sponsorship_campaign:sponsorship-campaign-display */
+
+/**
+ * hide term description field since we have a Fieldmanager_RichTextArea instead
+ */
+function sponsorship_manager_hide_term_description() { ?>
+	<script>
+		jQuery('.term-description-wrap').hide();
+	</script>
+<?php }
+add_action( 'sponsorship_campaign_add_form_fields', 'sponsorship_manager_hide_term_description' );
+add_action( 'sponsorship_campaign_edit_form_fields', 'sponsorship_manager_hide_term_description' );
