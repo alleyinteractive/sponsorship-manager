@@ -357,8 +357,8 @@ class Sponsorship_Manager {
 		// Check if the post is assigned to a campaign (if not, don't hide it at all)
 		if ( $this->post_is_sponsored( $post ) ) {
 			$sponsor_info = $this->get_post_sponsor_info( $post );
-			$hidden_from_loop = ( ! empty( $sponsor_info['hide-from-recent-posts'] ) && '1' === $sponsor_info['hide-from-recent-posts'] );
-			$hidden_from_feed = ( ! empty( $sponsor_info['hide-from-feeds'] ) && '1' === $sponsor_info['hide-from-feeds'] );
+			$hidden_from_loop = ( ! empty( $sponsor_info['hide-from-recent-posts'] ) && '1' === strval( $sponsor_info['hide-from-recent-posts'] ) );
+			$hidden_from_feed = ( ! empty( $sponsor_info['hide-from-feeds'] ) && '1' === strval( $sponsor_info['hide-from-feeds'] ) );
 		}
 
 		// Build the terms for this post
@@ -379,8 +379,11 @@ class Sponsorship_Manager {
 	 * @param WP_Query $query
 	 */
 	public function hide_campaign_posts( WP_Query $query ) {
-		if ( ! $query->is_main_query() || ( ! $query->is_archive() && ! $query->is_home() && ! $query->is_feed() ) ) {
-			return $query;
+		// Only alter The Loop for the main query of an archive, homepage, or feed
+		if ( ! $query->is_main_query() ) {
+		    return $query;
+		} elseif ( ! $query->is_archive() && ! $query->is_home() && ! $query->is_feed() ) {
+		    return $query;
 		}
 
 		// Term to hide posts from main loop
