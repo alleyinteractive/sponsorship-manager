@@ -35,9 +35,11 @@ function sponsorship_manager_fm_sponsorship_campaign_info() {
 			) ),
 		),
 	) );
-	$fm->add_meta_box( __( 'Sponsorship Campaign', 'sponsorship-manager' ), array( 'post' ) );
+	$fm->add_meta_box( __( 'Sponsorship Campaign', 'sponsorship-manager' ), sponsorship_manager()->get_enabled_post_types() );
 }
-add_action( 'fm_post_post', 'sponsorship_manager_fm_sponsorship_campaign_info' );
+foreach ( sponsorship_manager()->get_enabled_post_types() as $post_type ) {
+	add_action( 'fm_post_' . $post_type, 'sponsorship_manager_fm_sponsorship_campaign_info' );
+}
 /* end fm:sponsorship-campaign-info */
 
 /* begin fm:tax_sponsorship_campaign:sponsorship-campaign-display */

@@ -1,7 +1,7 @@
 {
 	"contexts" : [{
 		"type" : "post",
-		"post_types" : ["post"],
+		"post_types" : "`sponsorship_manager()->get_enabled_post_types()`",
 		"title" : {"__": "Sponsorship Campaign"}
 	}],
 	"type" : "group",
