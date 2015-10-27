@@ -48,9 +48,18 @@ class Sponsorship_Manager {
 	protected $default_post_types = array( 'post' );
 
 	/**
+	 * Enabled post types after 'sponsorship_manager_enabled_post_types' filter
+	 *
+	 * @var array
+	 */
+	protected $post_types = array();
+
+	/**
 	 * Protected Contructor
 	 */
 	protected function __construct() {
+		$this->post_types = (array) apply_filters( 'sponsorship_manager_enabled_post_types', $this->default_post_types );
+
 		add_action( 'the_post', array( $this, 'set_sponsor_from_post' ) );
 		add_filter( 'the_content', array( $this, 'insert_tracking_pixel_code' ) );
 
@@ -85,7 +94,7 @@ class Sponsorship_Manager {
 	 * @return array
 	 */
 	public function get_enabled_post_types() {
-		return (array) apply_filters( 'sponsorship_manager_enabled_post_types', $this->default_post_types );
+		return $this->post_types;
 	}
 
 	/**
@@ -347,7 +356,7 @@ class Sponsorship_Manager {
 	 * @param WP_Post $post
 	 */
 	public function hide_posts_on_save( $post_id, WP_Post $post ) {
-		if ( 'publish' !== $post->post_status || ! in_array( $post->post_type, $this->get_enabled_post_types() ) ) {
+		if ( 'publish' !== $post->post_status || ! in_array( $post->post_type, $this->get_enabled_post_types(), true ) ) {
 			return;
 		}
 
