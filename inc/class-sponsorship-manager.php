@@ -146,6 +146,25 @@ class Sponsorship_Manager {
 	}
 
 	/**
+	 * Tell if a post is associated with a sponsorship campaign
+	 *
+	 * @param object|string|int $post Optional post object or ID
+	 * @return boolean
+	 */
+	public function post_is_sponsored( $post = null ) {
+		if ( is_numeric( $post ) ) {
+			$post = get_post( absint( $post ) );
+		} else if ( empty( $post ) ) {
+			$post = get_post();
+		}
+
+		if ( 'WP_Post' !== get_class( $post ) ) {
+			return false;
+		}
+		return has_term( '', $this->taxonomy, $post );
+	}
+
+	/**
 	 * Retrieve parent sponsor
 	 *
 	 * @param object $sponsor Optional sponsor object. Defaults to current post's sponsor
@@ -336,7 +355,7 @@ class Sponsorship_Manager {
 		$hidden_from_loop = $hidden_from_feed = false;
 
 		// Check if the post is assigned to a campaign (if not, don't hide it at all)
-		if ( has_term( '', $this->taxonomy, $post ) ) {
+		if ( $this->post_is_sponsored( $post ) ) {
 			$sponsor_info = $this->get_post_sponsor_info( $post );
 			$hidden_from_loop = ( ! empty( $sponsor_info['hide-from-recent-posts'] ) && '1' === $sponsor_info['hide-from-recent-posts'] );
 			$hidden_from_feed = ( ! empty( $sponsor_info['hide-from-feeds'] ) && '1' === $sponsor_info['hide-from-feeds'] );
