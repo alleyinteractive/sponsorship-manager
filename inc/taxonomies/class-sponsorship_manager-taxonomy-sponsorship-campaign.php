@@ -64,4 +64,4 @@ class Sponsorship_Manager_Taxonomy_Sponsorship_Campaign extends Sponsorship_Mana
 	}
 }
 
-$taxonomy_sponsorship_campaign = new Sponsorship_Manager_Taxonomy_sponsorship_campaign();
+$taxonomy_sponsorship_campaign = new Sponsorship_Manager_Taxonomy_Sponsorship_Campaign();
