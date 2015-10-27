@@ -41,9 +41,25 @@ class Sponsorship_Manager {
 	protected $term_hidden_from_feed = '_hidden_from_feed';
 
 	/**
+	 * Default post types that can be sponsored
+	 *
+	 * @var array
+	 */
+	protected $default_post_types = array( 'post' );
+
+	/**
+	 * Enabled post types after 'sponsorship_manager_enabled_post_types' filter
+	 *
+	 * @var array
+	 */
+	protected $post_types = array();
+
+	/**
 	 * Protected Contructor
 	 */
 	protected function __construct() {
+		$this->post_types = (array) apply_filters( 'sponsorship_manager_enabled_post_types', $this->default_post_types );
+
 		add_action( 'the_post', array( $this, 'set_sponsor_from_post' ) );
 		add_filter( 'the_content', array( $this, 'insert_tracking_pixel_code' ) );
 
@@ -53,11 +69,11 @@ class Sponsorship_Manager {
 	}
 
 	public function __clone() {
-		wp_die( __( "Please don't __clone ", 'sponsorship-manager' ) . __CLASS__ );
+		wp_die( esc_html__( "Please don't __clone ", 'sponsorship-manager' ) . __CLASS__ );
 	}
 
 	public function __wakeup() {
-		wp_die( __( "Please don't __wakeup ", 'sponsorship-manager' ) . __CLASS__ );
+		wp_die( esc_html__( "Please don't __wakeup ", 'sponsorship-manager' ) . __CLASS__ );
 	}
 
 	/**
@@ -78,7 +94,7 @@ class Sponsorship_Manager {
 	 * @return array
 	 */
 	public function get_enabled_post_types() {
-		return (array) apply_filters( 'sponsorship_manager_enabled_post_types', array( 'post', 'video' ) );
+		return $this->post_types;
 	}
 
 	/**
@@ -121,8 +137,14 @@ class Sponsorship_Manager {
 	 * @return object|void Sponsor Term or null if one isn't set.
 	 */
 	public function get_post_sponsor( $post = null ) {
-		if ( empty( $post->ID ) ) {
+		if ( is_numeric( $post ) ) {
+			$post = get_post( absint( $post ) );
+		} else if ( empty( $post ) ) {
 			$post = get_post();
+		}
+
+		if ( 'WP_Post' !== get_class( $post ) ) {
+			return null;
 		}
 
 		$sponsor = get_the_terms( $post->ID, $this->taxonomy );
@@ -130,6 +152,25 @@ class Sponsorship_Manager {
 		if ( ! empty( $sponsor ) ) {
 			return array_shift( $sponsor );
 		}
+	}
+
+	/**
+	 * Tell if a post is associated with a sponsorship campaign
+	 *
+	 * @param object|string|int $post Optional post object or ID
+	 * @return boolean
+	 */
+	public function post_is_sponsored( $post = null ) {
+		if ( is_numeric( $post ) ) {
+			$post = get_post( absint( $post ) );
+		} else if ( empty( $post ) ) {
+			$post = get_post();
+		}
+
+		if ( 'WP_Post' !== get_class( $post ) ) {
+			return false;
+		}
+		return has_term( '', $this->taxonomy, $post );
 	}
 
 	/**
@@ -146,6 +187,8 @@ class Sponsorship_Manager {
 		if ( ! empty( $sponsor->parent ) ) {
 			// Retrieve sponsor parent
 			return get_term( $sponsor->parent, $this->taxonomy );
+		} else {
+			return null;
 		}
 	}
 
@@ -163,6 +206,8 @@ class Sponsorship_Manager {
 
 		if ( ! empty( $sponsor->term_id ) ) {
 			return fm_get_term_meta( $sponsor->term_id, $sponsor->taxonomy, 'sponsorship-campaign-display', true );
+		} else {
+			return null;
 		}
 	}
 
@@ -190,7 +235,7 @@ class Sponsorship_Manager {
 	public function get_sponsor_image( $name, $size = 'full', $sponsor = null ) {
 		$info = $this->get_sponsor_info( $sponsor );
 
-		if ( ! empty( $info[ $name ] ) && is_int( $info[ $name] ) ) {
+		if ( ! empty( $info[ $name ] ) && is_int( $info[ $name ] ) ) {
 			$attachment = wp_get_attachment_image_src( $info[ $name ], $size );
 
 			if ( ! empty( $attachment ) ) {
@@ -225,6 +270,9 @@ class Sponsorship_Manager {
 			}
 		}
 
+		if ( function_exists( 'wpcom_vip_get_term_link' ) ) {
+			return wpcom_vip_get_term_link( $sponsor );
+		}
 		return get_term_link( $sponsor );
 	}
 
@@ -237,7 +285,9 @@ class Sponsorship_Manager {
 	public function get_sponsor_tracking_pixel( $sponsor = null ) {
 		$info = $this->get_post_sponsor_info( $sponsor );
 		if ( ! empty( $info['dfp-tracking-pixel'] ) ) {
-			return add_query_arg( array( 'c' => wp_rand() ), $info['dfp-tracking-pixel'] );
+			return $info['dfp-tracking-pixel'];
+		} else {
+			return null;
 		}
 	}
 
@@ -255,6 +305,12 @@ class Sponsorship_Manager {
 		?>
 		<script>
 			var sponsorshipPixelUrl = <?php echo wp_json_encode( $dfp_pixel_url ); ?>;
+
+			// make a new, unique cachebuster paramater for the pixel URL
+			sponsorshipPixelUrl.replace( /\?.*c=([\d]+)/, function(match, oldC) {
+				var newC = Date.now().toString() + Math.floor( Math.random() * 1000 ).toString();
+				return match.replace( oldC, newC );
+			} );
 			var sponsorshipPixel = document.createElement( 'img' );
 			sponsorshipPixel.src = sponsorshipPixelUrl;
 			if ( document.body ) {
@@ -277,16 +333,21 @@ class Sponsorship_Manager {
 	 * @return object
 	 */
 	protected function get_or_create_term( $slug, $taxonomy = 'sponsorship_campaign_posts' ) {
-		$term = get_term_by( 'slug', $slug, $taxonomy );
+		if ( function_exists( 'wpcom_vip_get_term_by' ) ) {
+			$term = wpcom_vip_get_term_by( 'slug', $slug, $taxonomy );
+		} else {
+			$term = get_term_by( 'slug', $slug, $taxonomy );
+		}
+
 		if ( ! empty( $term ) ) {
 			return $term;
-		} else {
-			$term_data = wp_insert_term( $slug, $taxonomy );
-			if ( is_wp_error( $term_data ) || empty( $term_data['term_id'] ) ) {
-				return false;
-			}
-			return ( ! empty( $term_data['term_id'] ) ) ? get_term( $term_data['term_id'], $taxonomy ) : false;
 		}
+
+		$term_data = wp_insert_term( $slug, $taxonomy );
+		if ( is_wp_error( $term_data ) || empty( $term_data['term_id'] ) ) {
+			return false;
+		}
+		return ( ! empty( $term_data['term_id'] ) ) ? get_term( $term_data['term_id'], $taxonomy ) : false;
 	}
 	/**
 	 * Mark a post as hidden with the sponsorship campaign posts taxonomy
@@ -295,7 +356,7 @@ class Sponsorship_Manager {
 	 * @param WP_Post $post
 	 */
 	public function hide_posts_on_save( $post_id, WP_Post $post ) {
-		if ( 'publish' !== $post->post_status || ! in_array( $post->post_type, $this->get_enabled_post_types() ) ) {
+		if ( 'publish' !== $post->post_status || ! in_array( $post->post_type, $this->get_enabled_post_types(), true ) ) {
 			return;
 		}
 
@@ -303,12 +364,12 @@ class Sponsorship_Manager {
 		$hidden_from_loop = $hidden_from_feed = false;
 
 		// Check if the post is assigned to a campaign (if not, don't hide it at all)
-		if ( has_term( '', $this->taxonomy, $post ) ) {
+		if ( $this->post_is_sponsored( $post ) ) {
 			$sponsor_info = $this->get_post_sponsor_info( $post );
-			$hidden_from_loop = ( ! empty( $sponsor_info['hide-from-recent-posts'] ) && '1' === $sponsor_info['hide-from-recent-posts'] );
-			$hidden_from_feed = ( ! empty( $sponsor_info['hide-from-feeds'] ) && '1' === $sponsor_info['hide-from-feeds'] );
+			$hidden_from_loop = ( ! empty( $sponsor_info['hide-from-recent-posts'] ) && '1' === strval( $sponsor_info['hide-from-recent-posts'] ) );
+			$hidden_from_feed = ( ! empty( $sponsor_info['hide-from-feeds'] ) && '1' === strval( $sponsor_info['hide-from-feeds'] ) );
 		}
-		
+
 		// Build the terms for this post
 		$terms = array();
 		if ( $hidden_from_loop ) {
@@ -327,8 +388,11 @@ class Sponsorship_Manager {
 	 * @param WP_Query $query
 	 */
 	public function hide_campaign_posts( WP_Query $query ) {
-		if ( ! $query->is_main_query() || ( ! $query->is_archive() && ! $query->is_home() && ! $query->is_feed() ) ) {
-			return $query;
+		// Only alter The Loop for the main query of an archive, homepage, or feed
+		if ( ! $query->is_main_query() ) {
+		    return $query;
+		} elseif ( ! $query->is_archive() && ! $query->is_home() && ! $query->is_feed() ) {
+		    return $query;
 		}
 
 		// Term to hide posts from main loop

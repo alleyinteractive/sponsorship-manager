@@ -24,7 +24,7 @@ class Sponsorship_Manager_Taxonomy_Sponsorship_Campaign extends Sponsorship_Mana
 	 * Build the taxonomy object.
 	 */
 	public function __construct() {
-		$this->object_types = array( 'empty' );
+		$this->object_types = sponsorship_manager()->get_enabled_post_types();
 
 		parent::__construct();
 	}
@@ -64,4 +64,4 @@ class Sponsorship_Manager_Taxonomy_Sponsorship_Campaign extends Sponsorship_Mana
 	}
 }
 
-$taxonomy_sponsorship_campaign = new Sponsorship_Manager_Taxonomy_sponsorship_campaign();
+$taxonomy_sponsorship_campaign = new Sponsorship_Manager_Taxonomy_Sponsorship_Campaign();
