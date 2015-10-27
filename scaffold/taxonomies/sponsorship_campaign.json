@@ -1,5 +1,5 @@
 {
-	"object_types" : ["empty"],
+	"object_types" : ["post"],
 	"singular" : "Sponsorship Campaign",
 	"plural" : "Sponsorship Campaigns",
 	"hierarchical" : true,
