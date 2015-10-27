@@ -257,7 +257,9 @@ class Sponsorship_Manager {
 	public function get_sponsor_tracking_pixel( $sponsor = null ) {
 		$info = $this->get_post_sponsor_info( $sponsor );
 		if ( ! empty( $info['dfp-tracking-pixel'] ) ) {
-			return add_query_arg( array( 'c' => wp_rand() ), $info['dfp-tracking-pixel'] );
+			return $info['dfp-tracking-pixel'];
+		} else {
+			return null;
 		}
 	}
 
@@ -275,6 +277,12 @@ class Sponsorship_Manager {
 		?>
 		<script>
 			var sponsorshipPixelUrl = <?php echo wp_json_encode( $dfp_pixel_url ); ?>;
+
+			// make a new, unique cachebuster paramater for the pixel URL
+			sponsorshipPixelUrl.replace( /\?.*c=([\d]+)/, function(match, oldC) {
+				var newC = Date.now().toString() + Math.floor( Math.random() * 1000 ).toString();
+				return match.replace( oldC, newC );
+			} );
 			var sponsorshipPixel = document.createElement( 'img' );
 			sponsorshipPixel.src = sponsorshipPixelUrl;
 			if ( document.body ) {
