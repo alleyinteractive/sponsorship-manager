@@ -135,7 +135,7 @@ class Sponsorship_Manager {
 		}
 
 		if ( 'WP_Post' !== get_class( $post ) ) {
-			return;
+			return null;
 		}
 
 		$sponsor = get_the_terms( $post->ID, $this->taxonomy );
@@ -159,6 +159,8 @@ class Sponsorship_Manager {
 		if ( ! empty( $sponsor->parent ) ) {
 			// Retrieve sponsor parent
 			return get_term( $sponsor->parent, $this->taxonomy );
+		} else {
+			return null;
 		}
 	}
 
@@ -176,6 +178,8 @@ class Sponsorship_Manager {
 
 		if ( ! empty( $sponsor->term_id ) ) {
 			return fm_get_term_meta( $sponsor->term_id, $sponsor->taxonomy, 'sponsorship-campaign-display', true );
+		} else {
+			return null;
 		}
 	}
 
