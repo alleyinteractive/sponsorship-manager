@@ -22,11 +22,5 @@
  */
 define( 'SPONSORSHIP_MANAGER_PATH', dirname( __FILE__ ) );
 
-// Sponsorship Manager Class
-require_once( SPONSORSHIP_MANAGER_PATH . '/inc/class-sponsorship-manager.php' );
-
-// Load Template Tags
-require_once( SPONSORSHIP_MANAGER_PATH . '/inc/template-tags.php' );
-
 // Load Fieldmanager Fields
 require_once( SPONSORSHIP_MANAGER_PATH . '/functions.php' );
