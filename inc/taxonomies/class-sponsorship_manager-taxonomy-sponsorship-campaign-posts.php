@@ -24,7 +24,7 @@ class Sponsorship_Manager_Taxonomy_Sponsorship_Campaign_Posts extends Sponsorshi
 	 * Build the taxonomy object.
 	 */
 	public function __construct() {
-		$this->object_types = array( 'post' );
+		$this->object_types = sponsorship_manager()->get_enabled_post_types();
 
 		parent::__construct();
 	}

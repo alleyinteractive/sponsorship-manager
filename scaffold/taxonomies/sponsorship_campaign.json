@@ -1,5 +1,5 @@
 {
-	"object_types" : ["post"],
+	"object_types" : "`sponsorship_manager()->get_enabled_post_types()`",
 	"singular" : "Sponsorship Campaign",
 	"plural" : "Sponsorship Campaigns",
 	"hierarchical" : true,
