@@ -57,3 +57,14 @@ foreach ( sponsorship_manager()->get_enabled_post_types() as $post_type ) {
 	add_action( 'fm_post_' . $post_type, 'sponsorship_manager_fm_sponsorship_info' );
 }
 /* end fm:sponsorship-info */
+
+/**
+ * hide term description field since we have a Fieldmanager_RichTextArea instead
+ */
+function sponsorship_manager_hide_term_description() { ?>
+	<script>
+		jQuery('.term-description-wrap').hide();
+	</script>
+<?php }
+add_action( 'sponsorship_campaign_add_form_fields', 'sponsorship_manager_hide_term_description' );
+add_action( 'sponsorship_campaign_edit_form_fields', 'sponsorship_manager_hide_term_description' );
