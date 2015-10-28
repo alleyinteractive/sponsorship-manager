@@ -31,7 +31,12 @@
 					"type": "link",
 					"label": {"__": "Campaign External URL"}
 				},
-				"description" : {
+				"tagline" : {
+					"type" : "text",
+					"label" : { "__" : "Tagline" },
+					"default_value" : {"__" : "Sponsored by "}
+				},
+				"richdescription" : {
 					"type" : "richtextarea",
 					"label" : "Campaign Description"
 				}
