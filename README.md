@@ -76,37 +76,57 @@ The same thing works for campaigns. You can use `Sponsorship_Manager_Campaign::i
 
 ### sponsorship_manager_override_campaign_description
 
-| Param | Description |
-|-------|-------------|
-| `$override` | Defaults to `true`. If `true`, WordPress default term description field is hidden and replaced by `richdescription`. |
+If `true`, WordPress default term description field is hidden and replaced by `richdescription`. This also means that `Sponsorship_Manager_Campaign::get( 'description' )` is converted to `Sponsorship_Manager_Campaign::get( 'richdescription' )`.
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `$override` | `bool` | Defaults to `true`. |
 
 ### sponsorship_manager_campaign_display_meta
 
-| Param | Description |
-|-------|-------------|
-| `$metadata` | Metadata array for campaign |
-| `$term` | Term object for campaign |
-| `$is_parent` | Boolean. Whether the term is the parent campaign |
+Filter campaign metadata
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `$metadata` | `array` | Metadata array for campaign |
+| `$term` | `object` | Term object for campaign |
+| `$is_parent` | `bool` | Whether the term is the parent campaign |
 
 ### sponsorship_manager_enabled_post_types
 
-| Param | Description |
-|-------|-------------|
-| `$post_types` | Array of post types that can be sponsored. Defaults to just `'post'`. |
+Array of post types that can be sponsored.
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `$post_types` | `array` | Defaults to `array( 'post' )`. |
 
 ### sponsorship_manager_tracking_pixel_when_logged_in
 
-| Param | Description |
-|-------|-------------|
-| `$do_pixel` | Defaults to `false`. If `true`, plugin will trigger pixel impressions for logged-in users. |
+If `true`, plugin will trigger pixel impressions for logged-in users.
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `$do_pixel` | `bool` | Defaults to `false`. |
 
 ### sponsorship_manager_dev_pixel_url
 
-| Param | Description |
-|-------|-------------|
-| `$new_url` | Defaults to `false`. If you return a string here, it will override the custom field value. This can be used to prevent impressions from being logged on dev environments. |
-| `$old_url` | Original pixel URL |
-| `$param` | URL parameter that will be replaced before triggering the pixel, e.g. `'c'` for DFP. |
+If you return a string here, it will override the custom field value. This can be used to prevent impressions from being logged on dev environments.
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `$new_url` | `bool|string` | Defaults to `false`. |
+| `$old_url` | `string` | Original pixel URL |
+| `$param` | `string` | URL parameter that will be replaced before triggering the pixel, e.g. `'c'` for DFP. |
+
+### sponsorship_manager_show_archiveless
+
+Allows you to unhide hidden sponsored posts for specific `WP_Query` cases.
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `$show` | `bool` | Defaults to `false`. Return `true` to unhide. |
+| `$query` | `WP_Query` | Current query object |
+
 
 ## Examples
 
