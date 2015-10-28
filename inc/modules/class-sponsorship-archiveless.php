@@ -4,7 +4,7 @@
  * Adapted from https://github.com/alleyinteractive/archiveless
  */
 
-class Archiveless {
+class Sponsorship_Manager_Archiveless {
 
 	private static $instance;
 
@@ -20,7 +20,7 @@ class Archiveless {
 
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
-			self::$instance = new Archiveless;
+			self::$instance = new Sponsorship_Manager_Archiveless;
 			self::$instance->setup();
 		}
 		return self::$instance;
@@ -144,4 +144,4 @@ class Archiveless {
 }
 
 // go go go
-Archiveless::instance();
+Sponsorship_Manager_Archiveless::instance();
