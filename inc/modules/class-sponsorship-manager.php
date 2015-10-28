@@ -37,10 +37,20 @@ class Sponsorship_Manager {
 	}
 
 	/**
+	 * @var array Post types that the plugin is enabled for
+	 */
+	protected $post_types = array( 'post' );
+
+	/**
 	 * Protected Contructor
 	 */
 	protected function __construct() {
-
+		/**
+		 * Add or remove post types that Sponsorhip Manager is enabled for
+		 *
+		 * @param array List of post types, defaults to array( 'post' )
+		 */
+		$this->post_types = apply_filters( 'sponsorship_manager_enabled_post_types', $this->post_types );
 	}
 
 	public function __clone() {
@@ -52,8 +62,17 @@ class Sponsorship_Manager {
 	}
 
 	/**
+	 * Retrieve enabled post types for Sponsorship Manager
+	 *
+	 * @return array
+	 */
+	public function get_enabled_post_types() {
+		return $this->post_types;
+	}
+
+	/**
 	 * Campaign getter
-	 * @var int|object $campaign_term Term ID or object
+	 * @param int|object $campaign_term Term ID or object
 	 * @return null|Sponsorship_Manager_Campaign Campaign object if exists, or null
 	 */
 	public function get_campaign( $campaign_term ) {
@@ -67,7 +86,7 @@ class Sponsorship_Manager {
 
 	/**
 	 * Add a campaign to the list that have already been created
-	 * @var Sponsorship_Manager_Campaign $campaign Campaign object
+	 * @param Sponsorship_Manager_Campaign $campaign Campaign object
 	 * @return null
 	 */
 	public function add_campaign( $campaign ) {
