@@ -16,6 +16,11 @@ class Sponsorship_Manager_Post_Template {
 	protected $campaign;
 
 	/**
+	 * @var array Sponsorship info fields array
+	 */
+	protected $sponsorship_info;
+
+	/**
 	 * Constructor
 	 *
 	 * @param int|WP_Post Optional. Post ID or WP_Post object
@@ -40,6 +45,9 @@ class Sponsorship_Manager_Post_Template {
 			$this->campaign = new Sponsorship_Manager_Campaign( $campaign_term );
 			sponsorship_manager()->add_campaign( $this->campaign );
 		}
+
+		// setup sponsorship info array
+		$this->sponsorship_info = (array) get_post_meta( $this->post->ID, 'sponsorship-info', true );
 	}
 
 	/**

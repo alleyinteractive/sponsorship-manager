@@ -1,12 +1,36 @@
 <?php
 
-/* begin fm:sponsorship-campaign-info */
+
+/* begin fm:tax_sponsorship_campaign:sponsorship-campaign-display */
 /**
- * `sponsorship-campaign-info` Fieldmanager fields.
+ * `sponsorship-campaign-display` Fieldmanager fields.
  */
-function sponsorship_manager_fm_sponsorship_campaign_info() {
+function sponsorship_manager_fm_tax_sponsorship_campaign_sponsorship_campaign_display() {
 	$fm = new Fieldmanager_Group( array(
-		'name' => 'sponsorship-campaign-info',
+		'name' => 'sponsorship-campaign-display',
+		'children' => array(
+			'logo' => new Fieldmanager_Media( __( 'Campaign Logo', 'sponsorship-manager' ) ),
+			'featured-image' => new Fieldmanager_Media( __( 'Campaign Featured Image', 'sponsorship-manager' ) ),
+			'external-url' => new Fieldmanager_Link( __( 'Campaign External URL', 'sponsorship-manager' ) ),
+			'tagline' => new Fieldmanager_TextField( array(
+				'label' => __( 'Tagline', 'sponsorship-manager' ),
+				'default_value' => __( 'Sponsored by ', 'sponsorship-manager' ),
+			) ),
+			'richdescription' => new Fieldmanager_RichTextArea( __( 'Campaign Description', 'sponsorship-manager' ) ),
+		),
+	) );
+	$fm->add_term_form( __( 'Display Fields', 'sponsorship-manager' ), array( 'sponsorship_campaign' ) );
+}
+add_action( 'fm_term_sponsorship_campaign', 'sponsorship_manager_fm_tax_sponsorship_campaign_sponsorship_campaign_display' );
+/* end fm:tax_sponsorship_campaign:sponsorship-campaign-display */
+
+/* begin fm:sponsorship-info */
+/**
+ * `sponsorship-info` Fieldmanager fields.
+ */
+function sponsorship_manager_fm_sponsorship_info() {
+	$fm = new Fieldmanager_Group( array(
+		'name' => 'sponsorship-info',
 		'children' => array(
 			'sponsorship-campaign' => new Fieldmanager_Select( array(
 				'label' => __( 'Select Campaign', 'sponsorship-manager' ),
@@ -38,29 +62,6 @@ function sponsorship_manager_fm_sponsorship_campaign_info() {
 	$fm->add_meta_box( __( 'Sponsorship Campaign', 'sponsorship-manager' ), sponsorship_manager()->get_enabled_post_types() );
 }
 foreach ( sponsorship_manager()->get_enabled_post_types() as $post_type ) {
-	add_action( 'fm_post_' . $post_type, 'sponsorship_manager_fm_sponsorship_campaign_info' );
+	add_action( 'fm_post_' . $post_type, 'sponsorship_manager_fm_sponsorship_info' );
 }
-/* end fm:sponsorship-campaign-info */
-
-/* begin fm:tax_sponsorship_campaign:sponsorship-campaign-display */
-/**
- * `sponsorship-campaign-display` Fieldmanager fields.
- */
-function sponsorship_manager_fm_tax_sponsorship_campaign_sponsorship_campaign_display() {
-	$fm = new Fieldmanager_Group( array(
-		'name' => 'sponsorship-campaign-display',
-		'children' => array(
-			'logo' => new Fieldmanager_Media( __( 'Campaign Logo', 'sponsorship-manager' ) ),
-			'featured-image' => new Fieldmanager_Media( __( 'Campaign Featured Image', 'sponsorship-manager' ) ),
-			'external-url' => new Fieldmanager_Link( __( 'Campaign External URL', 'sponsorship-manager' ) ),
-			'tagline' => new Fieldmanager_TextField( array(
-				'label' => __( 'Tagline', 'sponsorship-manager' ),
-				'default_value' => __( 'Sponsored by ', 'sponsorship-manager' ),
-			) ),
-			'richdescription' => new Fieldmanager_RichTextArea( __( 'Campaign Description', 'sponsorship-manager' ) ),
-		),
-	) );
-	$fm->add_term_form( __( 'Display Fields', 'sponsorship-manager' ), array( 'sponsorship_campaign' ) );
-}
-add_action( 'fm_term_sponsorship_campaign', 'sponsorship_manager_fm_tax_sponsorship_campaign_sponsorship_campaign_display' );
-/* end fm:tax_sponsorship_campaign:sponsorship-campaign-display */
+/* end fm:sponsorship-info */
