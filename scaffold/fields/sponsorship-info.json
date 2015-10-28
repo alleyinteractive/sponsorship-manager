@@ -24,8 +24,8 @@
 			"type" : "link",
 			"description" : {"__" : "Include 'c' parameter; cache busting will be handled on output"}
 		},
-		"hide-from-recent-posts" : {
-			"label" : {"__" : "Hide from Recent Posts queries"},
+		"hide-from-frontend" : {
+			"label" : {"__" : "Hide from frontend queries, (Recent Posts, author archive, etc.)"},
 			"type" : "checkbox"
 		},
 		"hide-from-feeds" : {

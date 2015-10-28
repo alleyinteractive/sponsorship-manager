@@ -51,7 +51,7 @@ function sponsorship_manager_fm_sponsorship_info() {
 				'label' => __( 'DFP Tracking Pixel URL', 'sponsorship-manager' ),
 				'description' => __( "Include 'c' parameter; cache busting will be handled on output", 'sponsorship-manager' ),
 			) ),
-			'hide-from-recent-posts' => new Fieldmanager_Checkbox( __( 'Hide from Recent Posts queries', 'sponsorship-manager' ) ),
+			'hide-from-frontend' => new Fieldmanager_Checkbox( __( 'Hide from frontend queries, (Recent Posts, author archive, etc.)', 'sponsorship-manager' ) ),
 			'hide-from-feeds' => new Fieldmanager_Checkbox( __( 'Hide from feed queries (RSS, etc.)', 'sponsorship-manager' ) ),
 		),
 	) );
