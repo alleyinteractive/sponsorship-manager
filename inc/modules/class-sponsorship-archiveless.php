@@ -74,8 +74,7 @@ class Archiveless {
 	 * @return array $data, potentially with a new status.
 	 */
 	public function wp_insert_post_data( $data, $postarr ) {
-		// use custom status when published post has "hide from..." box checked`
-		error_log($data['post_status']);
+		// replace 'publish' with custom status when published post has "hide from..." box checked
 		if ( 'publish' == $data['post_status'] ) {
 			if ( ! empty( $_POST[ $this->meta_key ][ $this->archiveless_meta_key ] ) && '1' === $_POST[ $this->meta_key ][ $this->archiveless_meta_key ] ) {
 				$data['post_status'] = $this->status;
@@ -85,7 +84,6 @@ class Archiveless {
 				}
 			}
 		}
-		error_log($data['post_status'] . "\n");
 		return $data;
 	}
 
