@@ -61,10 +61,12 @@ foreach ( sponsorship_manager()->get_enabled_post_types() as $post_type ) {
 /**
  * hide term description field since we have a Fieldmanager_RichTextArea instead
  */
-function sponsorship_manager_hide_term_description() { ?>
-	<script>
-		jQuery('.term-description-wrap').hide();
-	</script>
-<?php }
+function sponsorship_manager_hide_term_description() {
+	if ( apply_filters( 'sponsorship_manager_override_campaign_description', true ) ) : ?>
+		<script>
+			jQuery('.term-description-wrap').hide();
+		</script>
+	<?php endif;
+}
 add_action( 'sponsorship_campaign_add_form_fields', 'sponsorship_manager_hide_term_description' );
 add_action( 'sponsorship_campaign_edit_form_fields', 'sponsorship_manager_hide_term_description' );
