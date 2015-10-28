@@ -14,7 +14,7 @@ function sponsorship_manager_fm_tax_sponsorship_campaign_sponsorship_campaign_di
 			'external-url' => new Fieldmanager_Link( __( 'Campaign External URL', 'sponsorship-manager' ) ),
 			'dfp-tracking-pixel' => new Fieldmanager_Link( array(
 				'label' => __( 'DFP Tracking Pixel URL for Campaign Hub Page', 'sponsorship-manager' ),
-				'description' => __( "Include 'c' parameter; cache busting will be handled on output", 'sponsorship-manager' ),
+				'description' => __( "Use this field to override default DFP pixel URL. Include 'c' parameter; cache busting will be handled on output", 'sponsorship-manager' ),
 			) ),
 			'tagline' => new Fieldmanager_TextField( array(
 				'label' => __( 'Tagline', 'sponsorship-manager' ),
@@ -49,7 +49,7 @@ function sponsorship_manager_fm_sponsorship_info() {
 			) ),
 			'dfp-tracking-pixel' => new Fieldmanager_Link( array(
 				'label' => __( 'DFP Tracking Pixel URL', 'sponsorship-manager' ),
-				'description' => __( "Include 'c' parameter; cache busting will be handled on output", 'sponsorship-manager' ),
+				'description' => __( "Use this field to override default DFP pixel URL. Include 'c' parameter; cache busting will be handled on output.", 'sponsorship-manager' ),
 			) ),
 			'archiveless' => new Fieldmanager_Checkbox( __( 'Hide from standard frontend queries (Recent Posts, author archive, etc.) and RSS feeds', 'sponsorship-manager' ) ),
 		),
