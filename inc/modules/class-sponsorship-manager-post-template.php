@@ -16,6 +16,11 @@ class Sponsorship_Manager_Post_Template {
 	protected $campaign;
 
 	/**
+	 * @var string Post meta key for post-specific sponsorship data
+	 */
+	protected $sponsorship_info_key = 'sponsorship-info';
+
+	/**
 	 * @var array Sponsorship info fields array
 	 */
 	protected $sponsorship_info;
@@ -47,7 +52,7 @@ class Sponsorship_Manager_Post_Template {
 		}
 
 		// setup sponsorship info array
-		$this->sponsorship_info = (array) get_post_meta( $this->post->ID, 'sponsorship-info', true );
+		$this->sponsorship_info = (array) get_post_meta( $this->post->ID, $this->sponsorship_info_key, true );
 	}
 
 	/**
@@ -60,5 +65,42 @@ class Sponsorship_Manager_Post_Template {
 	 */
 	public function get_campaign( $key, $parent = false, $img_size = 'full' ) {
 		return $this->campaign->get( $key, $parent, $img_size );
+	}
+
+	/**
+	 * Get a key from the sponsorship data for this particular post (not the sponsor or campaign)
+	 * @param $key
+	 * @return mixed|null Value for the key or null
+	 */
+	public function get_sponsorship( $key ) {
+		return isset( $this->sponsorship_info[ $key ] ) ? $this->sponsorship_info[ $key ] : null;
+	}
+
+	/**
+	 * Renders a script tag that fires the DFP tracking pixel with a new, unique cachebusting parameter
+	 *
+	 * @return none
+	 */
+	public function insert_tracking_pixel() {
+		$dfp_pixel_url = $this->get_sponsorship( 'dfp-tracking-pixel' );
+		if ( empty( $dfp_pixel_url ) ) {
+			return;
+		} ?>
+			<script>
+				var sponsorshipPixelUrl = <?php echo wp_json_encode( $dfp_pixel_url ); ?>;
+
+				// make a new, unique cachebuster paramater for the pixel URL
+				sponsorshipPixelUrl = sponsorshipPixelUrl.replace( /\?.*c=([\d]+)/, function(match, oldC) {
+					var newC = Date.now().toString() + Math.floor( Math.random() * 1000 ).toString();
+					return match.replace( oldC, newC );
+				} );
+				var sponsorshipPixel = document.createElement( 'img' );
+				sponsorshipPixel.src = sponsorshipPixelUrl;
+				// append to body to fire tracking pixel
+				if ( document.body ) {
+					document.body.appendChild( sponsorshipPixel );
+				}
+			</script>
+		<?php
 	}
 }
