@@ -1,38 +1,31 @@
 <?php
 /**
- * Helpers
+ * Helper functions, this file gets loaded first!
  */
 
 /**
- * Create campaign post term if it doesn't exist
+ * Helper function for tracking pixel
  *
- * @param  string $slug Term slug
- * @param  string $taxonomy Taxonomy name. Defaults to 'sponsorship_campaign_posts'
- * @return object
+ * @param string $pixel URL of tracking pixel
  */
-function sponsorship_manager_get_or_create_term( $slug, $taxonomy = 'sponsorship_campaign_posts' ) {
-	$term = get_term_by( 'slug', $slug, $taxonomy );
-	if ( ! empty( $term ) ) {
-		return $term;
-	} else {
-		$term_data = wp_insert_term( $slug, $taxonomy );
-		if ( is_wp_error( $term_data ) || empty( $term_data['term_id'] ) ) {
-			return false;
-		}
-		return ( ! empty( $term_data['term_id'] ) ) ? get_term( $term_data['term_id'], $taxonomy ) : false;
+function sponsorship_manager_insert_tracking_pixel( $pixel ) {
+	if ( empty( $pixel ) ) {
+		return;
 	}
-}
+?>
+	<script>
+		var sponsorshipPixelUrl = <?php echo wp_json_encode( $pixel ); ?>;
 
-/**
- * Remove a term from a post if it has it
- *
- * @param WP_Post $post Post to remove term from
- * @param object $term Term to remove
- */
-function sponsorship_manager_remove_term_from_post( WP_Post $post, $term ) {
-
-}
-
-/**
- * Add a term to a post
- */
+		// make a new, unique cachebuster paramater for the pixel URL
+		sponsorshipPixelUrl = sponsorshipPixelUrl.replace( /\?.*c=([\d]+)/, function(match, oldC) {
+			var newC = Date.now().toString() + Math.floor( Math.random() * 1000 ).toString();
+			return match.replace( oldC, newC );
+		} );
+		var sponsorshipPixel = document.createElement( 'img' );
+		sponsorshipPixel.src = sponsorshipPixelUrl;
+		// append to body to fire tracking pixel
+		if ( document.body ) {
+			document.body.appendChild( sponsorshipPixel );
+		}
+	</script>
+<?php }

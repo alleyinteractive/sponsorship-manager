@@ -22,10 +22,21 @@
  */
 define( 'SPONSORSHIP_MANAGER_PATH', dirname( __FILE__ ) );
 
-// Sponsorship Manager Class
-require_once( SPONSORSHIP_MANAGER_PATH . '/inc/class-sponsorship-manager.php' );
+define( 'SPONSORSHIP_MANAGER_CAMPAIGN_TAXONOMY', 'sponsorship_campaign' );
 
-// Load Template Tags
+// Load helpers
+require_once( SPONSORSHIP_MANAGER_PATH . '/inc/helpers.php' );
+
+// Load main plugin class
+require_once( SPONSORSHIP_MANAGER_PATH . '/inc/modules/class-sponsorship-manager.php' );
+
+// Load campaign class
+require_once( SPONSORSHIP_MANAGER_PATH . '/inc/modules/class-sponsorship-manager-campaign.php' );
+
+// Load post templating class
+require_once( SPONSORSHIP_MANAGER_PATH . '/inc/modules/class-sponsorship-manager-post-template.php' );
+
+// Load template tags
 require_once( SPONSORSHIP_MANAGER_PATH . '/inc/template-tags.php' );
 
 // Load Fieldmanager Fields
