@@ -64,11 +64,13 @@ Here are the keys:
 
 When fetching a key, the method looks first among the standard WP term fields (`description` is (the exception)[#sponsorship_manager_override_campaign_description]) then in metadata.
 
-### Post-specific data
+### Tracking pixels
 
 Each sponsored post can have its own DFP tracking pixel set in post meta. This enables content to be served by WordPress but still logged in the ad server. The client would normally be responsible for inserting the pixel URL.
 
 To trigger the pixel impression, use `Sponsorship_Manager_Post_Template::insert_tracking_pixel()`. This renders a script tag with no dependencies that requests the image after replacing the cache-busting parameter (`c`) with a new, unique integer.
+
+The same thing works for campaigns. You can use `Sponsorship_Manager_Campaign::insert_tracking_pixel()` to log an impression of the campaign hub (landing page).
 
 ## Filters
 
