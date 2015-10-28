@@ -26,15 +26,11 @@
 		},
 		"hide-from-recent-posts" : {
 			"label" : {"__" : "Hide from Recent Posts queries"},
-			"type" : "checkbox",
-			"checked_value" : true,
-			"default_value" : true
+			"type" : "checkbox"
 		},
 		"hide-from-feeds" : {
 			"label" : {"__" : "Hide from feed queries (RSS, etc.)"},
-			"type" : "checkbox",
-			"checked_value" : true,
-			"default_value" : true
+			"type" : "checkbox"
 		}
 	}
 }

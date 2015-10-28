@@ -47,16 +47,8 @@ function sponsorship_manager_fm_sponsorship_info() {
 				'label' => __( 'DFP Tracking Pixel URL', 'sponsorship-manager' ),
 				'description' => __( "Include 'c' parameter; cache busting will be handled on output", 'sponsorship-manager' ),
 			) ),
-			'hide-from-recent-posts' => new Fieldmanager_Checkbox( array(
-				'label' => __( 'Hide from Recent Posts queries', 'sponsorship-manager' ),
-				'checked_value' => true,
-				'default_value' => true,
-			) ),
-			'hide-from-feeds' => new Fieldmanager_Checkbox( array(
-				'label' => __( 'Hide from feed queries (RSS, etc.)', 'sponsorship-manager' ),
-				'checked_value' => true,
-				'default_value' => true,
-			) ),
+			'hide-from-recent-posts' => new Fieldmanager_Checkbox( __( 'Hide from Recent Posts queries', 'sponsorship-manager' ) ),
+			'hide-from-feeds' => new Fieldmanager_Checkbox( __( 'Hide from feed queries (RSS, etc.)', 'sponsorship-manager' ) ),
 		),
 	) );
 	$fm->add_meta_box( __( 'Sponsorship Campaign', 'sponsorship-manager' ), sponsorship_manager()->get_enabled_post_types() );
