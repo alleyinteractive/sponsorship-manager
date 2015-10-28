@@ -94,6 +94,20 @@ The same thing works for campaigns. You can use `Sponsorship_Manager_Campaign::i
 |-------|-------------|
 | `$post_types` | Array of post types that can be sponsored. Defaults to just `'post'`. |
 
+### sponsorship_manager_tracking_pixel_when_logged_in
+
+| Param | Description |
+|-------|-------------|
+| `$do_pixel` | Defaults to `false`. If `true`, plugin will trigger pixel impressions for logged-in users. |
+
+### sponsorship_manager_dev_pixel_url
+
+| Param | Description |
+|-------|-------------|
+| `$new_url` | Defaults to `false`. If you return a string here, it will override the custom field value. This can be used to prevent impressions from being logged on dev environments. |
+| `$old_url` | Original pixel URL |
+| `$param` | URL parameter that will be replaced before triggering the pixel, e.g. `'c'` for DFP. |
+
 ## Examples
 
 ### In a post template like `single.php`
