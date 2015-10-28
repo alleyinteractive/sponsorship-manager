@@ -29,7 +29,13 @@
 				},
 				"external-url": {
 					"type": "link",
-					"label": {"__": "Campaign External URL"}
+					"label": {"__": "Campaign External URL"},
+					"description" : {"__":"e.g. sponsor's website."}
+				},
+				"hub" : {
+					"type" : "link",
+					"label" : {"__":"Campaign Hub URL"},
+					"description" : {"__" : "URL of landing page for this campaign. If blank, will default to term archive link."}
 				},
 				"dfp-tracking-pixel" : {
 					"label" : {"__" : "DFP Tracking Pixel URL for Campaign Hub Page"},

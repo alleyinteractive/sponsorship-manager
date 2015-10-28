@@ -52,10 +52,12 @@ class Sponsorship_Manager_Campaign {
 	protected function setup_term_meta( $term, $is_parent = false ) {
 		$metadata = (array) fm_get_term_meta( $term->term_id, $term->taxonomy, 'sponsorship-campaign-display', true );
 
-		if ( function_exists( 'wpcom_vip_get_term_link' ) ) {
-			$metadata['hub'] = wpcom_vip_get_term_link( $term, $term->taxonomy );
-		} else {
-			$metadata['hub'] = get_term_link( $term );
+		if ( empty( $metadata['hub]'] ) ) {
+			if ( function_exists( 'wpcom_vip_get_term_link' ) ) {
+				$metadata['hub'] = wpcom_vip_get_term_link( $term, $term->taxonomy );
+			} else {
+				$metadata['hub'] = get_term_link( $term );
+			}
 		}
 
 		/**
