@@ -51,6 +51,9 @@ function sponsorship_manager_setup() {
 	// Load helpers
 	require_once( SPONSORSHIP_MANAGER_PATH . '/inc/helpers.php' );
 
+	// Load archiveless class
+	require_once( SPONSORSHIP_MANAGER_PATH . '/inc/modules/class-sponsorship-archiveless.php' );
+
 	// Load main plugin class
 	require_once( SPONSORSHIP_MANAGER_PATH . '/inc/modules/class-sponsorship-manager.php' );
 
