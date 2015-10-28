@@ -117,22 +117,25 @@ class Sponsorship_Manager_Archiveless {
 			return $where;
 		}
 
-		// default to hiding archiveless status
+		// default to hiding archiveless posts except for...
 		$hide_archiveless = true;
 
-		// except when NOT a main query or a feed
+		// show archiveless when NOT a main query or a feed...
 		if ( ! $query->is_main_query() && ! $query->is_feed() ) {
 			$hide_archiveless = false;
 		}
-		// or when main query for singular or campaign archive
+		// show archiveless when main query for singular or campaign archive
 		elseif ( $query->is_main_query() && ( $query->is_singular() || $query->is_tax( SPONSORSHIP_MANAGER_CAMPAIGN_TAXONOMY ) ) ) {
 			$hide_archiveless = false;
 		}
 
-		// anything else you can think of
-		if ( apply_filters( 'sponsorship_manager_show_archiveless', false, $query ) ) {
-			$hide_archiveless = false;
-		}
+		/**
+		 * Granular determination of hiding archiveless posts for a specific WP_Query
+		 *
+		 * @param bool $hide Return `true` to hide archiveless posts for `$query`, or `false` to show them.
+		 * @param WP_Query $query Current query object
+		 */
+		$hide_archiveless = apply_filters( 'sponsorship_manager_hide_archiveless', $hide_archiveless, $query );
 
 		// remove archiveless status from SQL query
 		if ( $hide_archiveless ) {
