@@ -118,13 +118,15 @@ If you return a string here, it will override the custom field value. This can b
 | `$old_url` | `string` | Original pixel URL |
 | `$param` | `string` | URL parameter that will be replaced before triggering the pixel, e.g. `'c'` for DFP. |
 
-### sponsorship_manager_show_archiveless
+### sponsorship_manager_hide_archiveless
 
-Allows you to unhide hidden sponsored posts for specific `WP_Query` cases.
+Allows you to hide or unhide sponsored posts where the "Hide from queries" option is checked. This filter can be applied for specific `WP_Query` cases.
+
+See `Sponsorship_Manager_Archiveless::posts_where()` for more info.
 
 | Param | Type | Description |
 |-------|------|-------------|
-| `$show` | `bool` | Defaults to `false`. Return `true` to unhide. |
+| `$hide` | `bool` | Return `true` to hide archiveless posts for this `$query`, or `false` to show them. |
 | `$query` | `WP_Query` | Current query object |
 
 
