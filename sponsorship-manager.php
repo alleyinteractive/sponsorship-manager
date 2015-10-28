@@ -24,20 +24,26 @@ define( 'SPONSORSHIP_MANAGER_PATH', dirname( __FILE__ ) );
 
 define( 'SPONSORSHIP_MANAGER_CAMPAIGN_TAXONOMY', 'sponsorship_campaign' );
 
-// Load helpers
-require_once( SPONSORSHIP_MANAGER_PATH . '/inc/helpers.php' );
+/**
+ * wait until after theme is loaded before setting up the plugin
+ */
+function sponsorship_manager_setup() {
+	// Load helpers
+	require_once( SPONSORSHIP_MANAGER_PATH . '/inc/helpers.php' );
 
-// Load main plugin class
-require_once( SPONSORSHIP_MANAGER_PATH . '/inc/modules/class-sponsorship-manager.php' );
+	// Load main plugin class
+	require_once( SPONSORSHIP_MANAGER_PATH . '/inc/modules/class-sponsorship-manager.php' );
 
-// Load campaign class
-require_once( SPONSORSHIP_MANAGER_PATH . '/inc/modules/class-sponsorship-manager-campaign.php' );
+	// Load campaign class
+	require_once( SPONSORSHIP_MANAGER_PATH . '/inc/modules/class-sponsorship-manager-campaign.php' );
 
-// Load post templating class
-require_once( SPONSORSHIP_MANAGER_PATH . '/inc/modules/class-sponsorship-manager-post-template.php' );
+	// Load post templating class
+	require_once( SPONSORSHIP_MANAGER_PATH . '/inc/modules/class-sponsorship-manager-post-template.php' );
 
-// Load template tags
-require_once( SPONSORSHIP_MANAGER_PATH . '/inc/template-tags.php' );
+	// Load template tags
+	require_once( SPONSORSHIP_MANAGER_PATH . '/inc/template-tags.php' );
 
-// Load Fieldmanager Fields
-require_once( SPONSORSHIP_MANAGER_PATH . '/functions.php' );
+	// Load Fieldmanager Fields
+	require_once( SPONSORSHIP_MANAGER_PATH . '/functions.php' );
+}
+add_action( 'after_setup_theme', 'sponsorship_manager_setup', 99 );
