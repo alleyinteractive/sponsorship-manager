@@ -18,7 +18,7 @@ class Sponsorship_Manager_Post_Template {
 	/**
 	 * Constructor
 	 *
-	 * @var int|WP_Post Optional. Post ID or WP_Post object
+	 * @param int|WP_Post Optional. Post ID or WP_Post object
 	 * @return Sponsorship_Manager_Post_Template
 	 */
 	public function __construct( $post = null ) {
@@ -40,5 +40,16 @@ class Sponsorship_Manager_Post_Template {
 			$this->campaign = new Sponsorship_Manager_Campaign( $campaign_term );
 			sponsorship_manager()->add_campaign( $this->campaign );
 		}
+	}
+
+	/**
+	 * get a value from the sponsorship campaign by key
+	 *
+	 * @param string $key Key to look for
+	 * @param bool $parent Optional. Defaults to false, set to true to check parent term
+	 * @return mixed|null Value of key if found, null if not found
+	 */
+	public function get_campaign( $key, $parent = false ) {
+		return $this->campaign->get( $key, $parent );
 	}
 }
