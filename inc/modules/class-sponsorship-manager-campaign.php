@@ -20,6 +20,11 @@ class Sponsorship_Manager_Campaign {
 	protected $parent;
 
 	/**
+	 * @var array List of campaign term meta keys that refer to attachments
+	 */
+	protected $image_meta_keys = array( 'logo', 'featured-image' );
+
+	/**
 	 * Constructor
 	 * @param object $term WP term object
 	 */
@@ -77,20 +82,41 @@ class Sponsorship_Manager_Campaign {
 	 *
 	 * @param string $key Name of key to look for
 	 * @param bool $parent Optional. Defaults to false, use true to get data from parent campaign
-	 * @param mixed|null Value of key or null if not found
+	 * @param string $img_size Optional. If $key is an image field ('logo' or 'featured-image'), specify an image size or default to 'full'
+	 * @return mixed|null Value of key or null if not found
 	 */
-	public function get( $key, $parent = false ) {
+	public function get( $key, $parent = false, $img_size = 'full' ) {
 		// make sure the term we're looking for is there
 		$term = ! $parent ? $this->term : $this->parent;
 		if ( empty( $term ) ) {
 			return null;
 		}
 
-		// look for the key first in the term itself, then in metadata
+		// get correct key
 		$key = strval( $key );
+		/**
+		 * This plugin hides the WordPress default term 'description' field and uses a Fieldmanager_RichTextArea
+		 * By default, requests for the 'description' field will be overridden by this custom field
+		 *
+		 * @param bool true Default to overriding meta key 'description' with 'richdescription'
+		 */
+		if ( 'description' === $key && apply_filters( 'sponsorship_manager_override_campaign_description', true ) ) {
+			$key = 'richdescription';
+		}
+
+		// look for the key first in the term itself, then in metadata
 		if ( isset( $term->$key ) ) {
 			return $term->$key;
 		} elseif ( isset( $term->metadata[ $key ] ) ) {
+			// if this is an image field, return URL and dimensions array
+			if ( in_array( $key, $this->image_meta_keys, true ) ) {
+				if ( ! empty( $term->metadata[ $key ] ) ) {
+					return wp_get_attachment_image_src( $term->metadata[ $key ], $size );
+				} else {
+					return null;
+				}
+			}
+			// if not an image, just return the value
 			return $term->metadata[ $key ];
 		} else {
 			return null;
