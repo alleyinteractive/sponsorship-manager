@@ -22,5 +22,16 @@
  */
 define( 'SPONSORSHIP_MANAGER_PATH', dirname( __FILE__ ) );
 
+define( 'SPONSORSHIP_MANAGER_CAMPAIGN_TAXONOMY', 'sponsorship_campaign' );
+
+// Load main plugin class
+require_once( SPONSORSHIP_MANAGER_PATH . '/inc/modules/class-sponsorship-manager.php' );
+
+// Load campaign class
+require_once( SPONSORSHIP_MANAGER_PATH . '/inc/modules/class-sponsorship-manager-campaign.php' );
+
+// Load post templating class
+require_once( SPONSORSHIP_MANAGER_PATH . '/inc/modules/class-sponsorship-manager-post-template.php' );
+
 // Load Fieldmanager Fields
 require_once( SPONSORSHIP_MANAGER_PATH . '/functions.php' );
