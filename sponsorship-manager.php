@@ -33,5 +33,8 @@ require_once( SPONSORSHIP_MANAGER_PATH . '/inc/modules/class-sponsorship-manager
 // Load post templating class
 require_once( SPONSORSHIP_MANAGER_PATH . '/inc/modules/class-sponsorship-manager-post-template.php' );
 
+// Load template tags
+require_once( SPONSORSHIP_MANAGER_PATH . '/inc/template-tags.php' );
+
 // Load Fieldmanager Fields
 require_once( SPONSORSHIP_MANAGER_PATH . '/functions.php' );
