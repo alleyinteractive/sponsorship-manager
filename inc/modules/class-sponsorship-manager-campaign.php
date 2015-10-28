@@ -58,7 +58,6 @@ class Sponsorship_Manager_Campaign {
 			$metadata['hub'] = get_term_link( $term );
 		}
 
-
 		/**
 		 * Filter sponsorship-campaign-display Fieldmanager metadata
 		 *
@@ -121,5 +120,18 @@ class Sponsorship_Manager_Campaign {
 		} else {
 			return null;
 		}
+	}
+
+	/**
+	 * Renders a script tag that fires the DFP tracking pixel with a new, unique cachebusting parameter
+	 *
+	 * @return none
+	 */
+	public function insert_tracking_pixel() {
+		$dfp_pixel_url = $this->get( 'dfp-tracking-pixel' );
+		if ( empty( $dfp_pixel_url ) ) {
+			return;
+		}
+		sponsorship_manager_insert_tracking_pixel( $dfp_pixel_url );
 	}
 }

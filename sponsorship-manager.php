@@ -24,6 +24,9 @@ define( 'SPONSORSHIP_MANAGER_PATH', dirname( __FILE__ ) );
 
 define( 'SPONSORSHIP_MANAGER_CAMPAIGN_TAXONOMY', 'sponsorship_campaign' );
 
+// Load helpers
+require_once( SPONSORSHIP_MANAGER_PATH . '/inc/helpers.php' );
+
 // Load main plugin class
 require_once( SPONSORSHIP_MANAGER_PATH . '/inc/modules/class-sponsorship-manager.php' );
 

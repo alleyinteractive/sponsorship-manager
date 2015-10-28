@@ -12,6 +12,10 @@ function sponsorship_manager_fm_tax_sponsorship_campaign_sponsorship_campaign_di
 			'logo' => new Fieldmanager_Media( __( 'Campaign Logo', 'sponsorship-manager' ) ),
 			'featured-image' => new Fieldmanager_Media( __( 'Campaign Featured Image', 'sponsorship-manager' ) ),
 			'external-url' => new Fieldmanager_Link( __( 'Campaign External URL', 'sponsorship-manager' ) ),
+			'dfp-tracking-pixel' => new Fieldmanager_Link( array(
+				'label' => __( 'DFP Tracking Pixel URL for Campaign Hub Page', 'sponsorship-manager' ),
+				'description' => __( "Include 'c' parameter; cache busting will be handled on output", 'sponsorship-manager' ),
+			) ),
 			'tagline' => new Fieldmanager_TextField( array(
 				'label' => __( 'Tagline', 'sponsorship-manager' ),
 				'default_value' => __( 'Sponsored by ', 'sponsorship-manager' ),

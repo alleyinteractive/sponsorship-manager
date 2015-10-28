@@ -85,22 +85,7 @@ class Sponsorship_Manager_Post_Template {
 		$dfp_pixel_url = $this->get_sponsorship( 'dfp-tracking-pixel' );
 		if ( empty( $dfp_pixel_url ) ) {
 			return;
-		} ?>
-			<script>
-				var sponsorshipPixelUrl = <?php echo wp_json_encode( $dfp_pixel_url ); ?>;
-
-				// make a new, unique cachebuster paramater for the pixel URL
-				sponsorshipPixelUrl = sponsorshipPixelUrl.replace( /\?.*c=([\d]+)/, function(match, oldC) {
-					var newC = Date.now().toString() + Math.floor( Math.random() * 1000 ).toString();
-					return match.replace( oldC, newC );
-				} );
-				var sponsorshipPixel = document.createElement( 'img' );
-				sponsorshipPixel.src = sponsorshipPixelUrl;
-				// append to body to fire tracking pixel
-				if ( document.body ) {
-					document.body.appendChild( sponsorshipPixel );
-				}
-			</script>
-		<?php
+		}
+		sponsorship_manager_insert_tracking_pixel( $dfp_pixel_url );
 	}
 }
