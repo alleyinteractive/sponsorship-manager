@@ -85,6 +85,7 @@ class Sponsorship_Manager_Campaign {
 	 * @return mixed|null Value of key or null if not found
 	 */
 	public function get( $key, $parent = false, $img_size = 'full' ) {
+
 		// make sure the term we're looking for is there
 		$term = ! $parent ? $this->term : $this->parent;
 		if ( empty( $term ) ) {
@@ -103,25 +104,23 @@ class Sponsorship_Manager_Campaign {
 			$key = 'richdescription';
 		}
 
+
+		// if this is an image field, return URL and dimensions array
+		if ( in_array( $key, $this->image_meta_keys, true ) ) {
+			if ( ! empty( $term->metadata[ $key ] ) ) {
+				return wp_get_attachment_image_src( $term->metadata[ $key ], $img_size );
+			}
+		}
+
 		// look for the key first in the term itself, then in metadata
 		if ( isset( $term->$key ) ) {
 			return $term->$key;
 		} elseif ( isset( $term->metadata[ $key ] ) ) {
-			// if this is an image field, return URL and dimensions array
-			if ( in_array( $key, $this->image_meta_keys, true ) ) {
-				if ( ! empty( $term->metadata[ $key ] ) ) {
-					return wp_get_attachment_image_src( $term->metadata[ $key ], $size );
-				} else {
-					return null;
-				}
-			}
-			// if not an image, just return the value
 			return $term->metadata[ $key ];
 		} else {
 			return null;
 		}
 	}
-
 	/**
 	 * Renders a script tag that fires the DFP tracking pixel with a new, unique cachebusting parameter
 	 *
