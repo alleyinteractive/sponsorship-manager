@@ -121,7 +121,7 @@ class Sponsorship_Manager_Campaign {
 			// if this is an image field, return URL and dimensions array
 			if ( in_array( $key, $this->image_meta_keys, true ) ) {
 				if ( ! empty( $term->metadata[ $key ] ) ) {
-					return wp_get_attachment_image_src( $term->metadata[ $key ], $size );
+					return wp_get_attachment_image_src( $term->metadata[ $key ], $img_size );
 				} else {
 					return null;
 				}
