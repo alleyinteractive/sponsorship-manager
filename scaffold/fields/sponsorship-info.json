@@ -22,7 +22,7 @@
 		"dfp-tracking-pixel" : {
 			"label" : {"__" : "DFP Tracking Pixel URL"},
 			"type" : "link",
-			"description" : {"__" : "Use this field to override default DFP pixel URL. Include 'c' parameter; cache busting will be handled on output."}
+			"description" : {"__" : "Include 'c' parameter; cache busting will be handled on output"}
 		},
 		"archiveless" : {
 			"label" : {"__" : "Hide from standard frontend queries (Recent Posts, author archive, etc.) and RSS feeds"},

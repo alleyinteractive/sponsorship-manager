@@ -29,18 +29,12 @@
 				},
 				"external-url": {
 					"type": "link",
-					"label": {"__": "Campaign External URL"},
-					"description" : {"__":"e.g. sponsor's website."}
-				},
-				"hub" : {
-					"type" : "link",
-					"label" : {"__":"Campaign Hub URL"},
-					"description" : {"__" : "URL of landing page for this campaign. If blank, will default to term archive link."}
+					"label": {"__": "Campaign External URL"}
 				},
 				"dfp-tracking-pixel" : {
 					"label" : {"__" : "DFP Tracking Pixel URL for Campaign Hub Page"},
 					"type" : "link",
-					"description" : {"__" : "Use this field to override default DFP pixel URL. Include 'c' parameter; cache busting will be handled on output"}
+					"description" : {"__" : "Include 'c' parameter; cache busting will be handled on output"}
 				},
 				"tagline" : {
 					"type" : "text",

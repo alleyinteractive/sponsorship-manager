@@ -26,11 +26,6 @@ class Sponsorship_Manager_Post_Template {
 	protected $sponsorship_info;
 
 	/**
-	 * @var string DFP pixel URL default for counting impressions on a sponsored post
-	 */
-	protected $default_dfp_pixel_url = 'http://pubads.g.doubleclick.net/gampad/ad?iu=/2836836/Sponsored_Post_Test&c=123&sz=1x1&t=post_id%3D{{post_id}}';
-
-	/**
 	 * Constructor
 	 *
 	 * @param int|WP_Post Optional. Post ID or WP_Post object
@@ -58,9 +53,6 @@ class Sponsorship_Manager_Post_Template {
 
 		// setup sponsorship info array
 		$this->sponsorship_info = (array) get_post_meta( $this->post->ID, $this->sponsorship_info_key, true );
-		if ( empty( $this->sponsorship_info['dfp-tracking-pixel'] ) ) {
-			$this->sponsorship_info['dfp-tracking-pixel'] = str_replace( '{{post_id}}', $this->post->ID, $this->default_dfp_pixel_url );
-		}
 	}
 
 	/**

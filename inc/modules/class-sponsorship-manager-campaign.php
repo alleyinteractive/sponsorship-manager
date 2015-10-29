@@ -25,11 +25,6 @@ class Sponsorship_Manager_Campaign {
 	protected $image_meta_keys = array( 'logo', 'featured-image' );
 
 	/**
-	 * @var string DFP pixel URL default for counting impressions on campaign landing page
-	 */
-	protected $default_dfp_pixel_url = 'http://pubads.g.doubleclick.net/gampad/ad?iu=/2836836/Sponsored_Landing_Page_Test&c=123&sz=1x1&t=wp_campaign_id%3D{{wp_campaign_id}}';
-
-	/**
 	 * Constructor
 	 * @param object $term WP term object
 	 */
@@ -57,16 +52,10 @@ class Sponsorship_Manager_Campaign {
 	protected function setup_term_meta( $term, $is_parent = false ) {
 		$metadata = (array) fm_get_term_meta( $term->term_id, $term->taxonomy, 'sponsorship-campaign-display', true );
 
-		if ( empty( $metadata['hub]'] ) ) {
-			if ( function_exists( 'wpcom_vip_get_term_link' ) ) {
-				$metadata['hub'] = wpcom_vip_get_term_link( $term, $term->taxonomy );
-			} else {
-				$metadata['hub'] = get_term_link( $term );
-			}
-		}
-
-		if ( empty( $metadata['dfp-tracking-pixel'] ) ) {
-			$metadata['dfp-tracking-pixel'] = str_replace( '{{wp_campaign_id}}', $term->term_id, $this->default_dfp_pixel_url );
+		if ( function_exists( 'wpcom_vip_get_term_link' ) ) {
+			$metadata['hub'] = wpcom_vip_get_term_link( $term, $term->taxonomy );
+		} else {
+			$metadata['hub'] = get_term_link( $term );
 		}
 
 		/**

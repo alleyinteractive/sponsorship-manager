@@ -11,17 +11,10 @@ function sponsorship_manager_fm_tax_sponsorship_campaign_sponsorship_campaign_di
 		'children' => array(
 			'logo' => new Fieldmanager_Media( __( 'Campaign Logo', 'sponsorship-manager' ) ),
 			'featured-image' => new Fieldmanager_Media( __( 'Campaign Featured Image', 'sponsorship-manager' ) ),
-			'external-url' => new Fieldmanager_Link( array(
-				'label' => __( 'Campaign External URL', 'sponsorship-manager' ),
-				'description' => __( "e.g. sponsor's website.", 'sponsorship-manager' ),
-			) ),
-			'hub' => new Fieldmanager_Link( array(
-				'label' => __( 'Campaign Hub URL', 'sponsorship-manager' ),
-				'description' => __( 'URL of landing page for this campaign. If blank, will default to term archive link.', 'sponsorship-manager' ),
-			) ),
+			'external-url' => new Fieldmanager_Link( __( 'Campaign External URL', 'sponsorship-manager' ) ),
 			'dfp-tracking-pixel' => new Fieldmanager_Link( array(
 				'label' => __( 'DFP Tracking Pixel URL for Campaign Hub Page', 'sponsorship-manager' ),
-				'description' => __( "Use this field to override default DFP pixel URL. Include 'c' parameter; cache busting will be handled on output", 'sponsorship-manager' ),
+				'description' => __( "Include 'c' parameter; cache busting will be handled on output", 'sponsorship-manager' ),
 			) ),
 			'tagline' => new Fieldmanager_TextField( array(
 				'label' => __( 'Tagline', 'sponsorship-manager' ),
@@ -56,7 +49,7 @@ function sponsorship_manager_fm_sponsorship_info() {
 			) ),
 			'dfp-tracking-pixel' => new Fieldmanager_Link( array(
 				'label' => __( 'DFP Tracking Pixel URL', 'sponsorship-manager' ),
-				'description' => __( "Use this field to override default DFP pixel URL. Include 'c' parameter; cache busting will be handled on output.", 'sponsorship-manager' ),
+				'description' => __( "Include 'c' parameter; cache busting will be handled on output", 'sponsorship-manager' ),
 			) ),
 			'archiveless' => new Fieldmanager_Checkbox( __( 'Hide from standard frontend queries (Recent Posts, author archive, etc.) and RSS feeds', 'sponsorship-manager' ) ),
 		),
