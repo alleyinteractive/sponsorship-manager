@@ -11,7 +11,7 @@ class Sponsorship_Tracking_Pixel {
 	protected $config;
 
 	/**
-	 * @var Pixel URL template
+	 * @var Pixel URL template per https://support.google.com/dfp_premium/answer/2623168?rd=1
 	 */
 	protected $pixel_template = 'http://pubads.g.doubleclick.net/gampad/ad?iu=/%s/%s&c=123&sz=%s&t=%s';
 

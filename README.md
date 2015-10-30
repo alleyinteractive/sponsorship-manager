@@ -66,7 +66,7 @@ When fetching a key, the method looks first among the standard WP term fields (`
 
 ### Tracking pixels
 
-Each sponsored post can have its own DFP tracking pixel set in post meta. This enables content to be served by WordPress but still logged in the ad server. The client would normally be responsible for inserting the pixel URL.
+Each sponsored post can have its own DFP tracking pixel. The `Sponsorship_Tracking_Pixel` class generates these automatically, although individual posts can override with a custom field. The tracking pixel enables content to be served by WordPress but still logged in the ad server.
 
 To trigger the pixel impression, use `Sponsorship_Manager_Post_Template::insert_tracking_pixel()`. This renders a script tag with no dependencies that requests the image after replacing the cache-busting parameter (`c`) with a new, unique integer.
 
@@ -108,15 +108,23 @@ If `true`, plugin will trigger pixel impressions for logged-in users.
 |-------|------|-------------|
 | `$do_pixel` | `bool` | Defaults to `false`. |
 
-### sponsorship_manager_dev_pixel_url
+### sponsorship_manager_override_pixel_url
 
-If you return a string here, it will override the custom field value. This can be used to prevent impressions from being logged on dev environments.
+If you return a string here, it will override the DFP pixel URL. This can be used to prevent impressions from being logged on dev environments.
 
 | Param | Type | Description |
 |-------|------|-------------|
 | `$new_url` | `bool|string` | Defaults to `false`. |
 | `$old_url` | `string` | Original pixel URL |
 | `$param` | `string` | URL parameter that will be replaced before triggering the pixel, e.g. `'c'` for DFP. |
+
+### sponsorship_manager_tracking_pixel_when_logged_in
+
+If `false`, tracking pixels will not be shown for logged-in users.
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `$show` | `bool` | Defaults to `false`. |
 
 ### sponsorship_manager_hide_archiveless
 
