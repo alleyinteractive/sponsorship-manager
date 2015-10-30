@@ -35,6 +35,15 @@ MasterCard
 
 (also, you would not be able to select `London` when editing a post because of the hierarchy depth limit)
 
+## Checking if the plugin is installed
+
+The plugin gets set up at the `after_setup_theme` [action](#https://codex.wordpress.org/Plugin_API/Action_Reference/after_setup_theme), which fires _after_ the theme's `functions.php` is loaded. If you need to check for the plugin before then, use
+
+```
+if ( function_exists( 'sponsorship_manager_setup' ) ) {
+	// do stuff
+```
+
 ## Usage in templates
 
 You can use `sponsorship_post_is_sponsored( $post )` to determine if a post has a sponsor or not. `$post` is optional, and can be an ID or WP_Post object.
