@@ -52,7 +52,8 @@ class Sponsorship_Manager {
 		 */
 		$this->post_types = apply_filters( 'sponsorship_manager_enabled_post_types', $this->post_types );
 
-		add_action( 'wp_head', array( $this, 'define_js' ) );
+		// load tracking pixel class
+		$this->tracking_pixel = new Sponsorship_Tracking_Pixel();
 	}
 
 	public function __clone() {
@@ -94,33 +95,6 @@ class Sponsorship_Manager {
 	public function add_campaign( $campaign ) {
 		$this->campaigns[ $campaign->get_id() ] = $campaign;
 	}
-
-	/**
-	 * Define JS object in script tag
-	 */
-	public function define_js() {
-		?>
-		<script>
-			var sponsorshipManagerPlugin = sponsorshipManagerPlugin || {
-				insertPixel : function( pixelUrl, param ) {
-					// make a new, unique cachebuster paramater for the pixel URL
-					var regex = new RegExp( '\\?.*' + param + '=([\\d]+)' );
-					pixelUrl = pixelUrl.replace( regex, function(match, oldC) {
-						var newC = Date.now().toString() + Math.floor( Math.random() * 1000 ).toString();
-						return match.replace( oldC, newC );
-					} );
-					var sponsorshipPixel = document.createElement( 'img' );
-					sponsorshipPixel.src = pixelUrl;
-					sponsorshipPixel.className = 'sponsorship-manager-tracking-pixel';
-					sponsorshipPixel.style.position = 'absolute';
-					// append to body to fire tracking pixel
-					if ( document.body ) {
-						document.body.appendChild( sponsorshipPixel );
-					}
-				}
-			};
-		</script>
-	<?php }
 }
 
 /**

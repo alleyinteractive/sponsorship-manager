@@ -26,11 +26,6 @@ class Sponsorship_Manager_Post_Template {
 	protected $sponsorship_info;
 
 	/**
-	 * @var string DFP pixel URL default for counting impressions on a sponsored post
-	 */
-	protected $default_dfp_pixel_url = 'http://pubads.g.doubleclick.net/gampad/ad?iu=/2836836/Sponsored_Post_Test&c=123&sz=1x1&t=post_id%3D{{post_id}}';
-
-	/**
 	 * Constructor
 	 *
 	 * @param int|WP_Post Optional. Post ID or WP_Post object
@@ -59,7 +54,7 @@ class Sponsorship_Manager_Post_Template {
 		// setup sponsorship info array
 		$this->sponsorship_info = (array) get_post_meta( $this->post->ID, $this->sponsorship_info_key, true );
 		if ( empty( $this->sponsorship_info['dfp-tracking-pixel'] ) ) {
-			$this->sponsorship_info['dfp-tracking-pixel'] = str_replace( '{{post_id}}', $this->post->ID, $this->default_dfp_pixel_url );
+			$this->sponsorship_info['dfp-tracking-pixel'] = sponsorship_manager()->tracking_pixel->get_url( get_post_type( $this->post ), $this->post->ID );
 		}
 	}
 
@@ -80,7 +75,7 @@ class Sponsorship_Manager_Post_Template {
 	 * @param $key
 	 * @return mixed|null Value for the key or null
 	 */
-	public function get_sponsorship( $key ) {
+	public function get_post_sponsorship( $key ) {
 		return isset( $this->sponsorship_info[ $key ] ) ? $this->sponsorship_info[ $key ] : null;
 	}
 
@@ -90,10 +85,6 @@ class Sponsorship_Manager_Post_Template {
 	 * @return none
 	 */
 	public function insert_tracking_pixel() {
-		$dfp_pixel_url = $this->get_sponsorship( 'dfp-tracking-pixel' );
-		if ( empty( $dfp_pixel_url ) ) {
-			return;
-		}
-		sponsorship_manager_insert_tracking_pixel( $dfp_pixel_url );
+		sponsorship_manager()->tracking_pixel->insert_tracking_pixel( $this->get_post_sponsorship( 'dfp-tracking-pixel' ) );
 	}
 }

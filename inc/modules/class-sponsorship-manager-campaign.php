@@ -66,7 +66,7 @@ class Sponsorship_Manager_Campaign {
 		}
 
 		if ( empty( $metadata['dfp-tracking-pixel'] ) ) {
-			$metadata['dfp-tracking-pixel'] = str_replace( '{{wp_campaign_id}}', $term->term_id, $this->default_dfp_pixel_url );
+			$metadata['dfp-tracking-pixel'] = sponsorship_manager()->tracking_pixel->get_url( $this->taxonomy, $term->term_id );
 		}
 
 		/**
@@ -138,10 +138,6 @@ class Sponsorship_Manager_Campaign {
 	 * @return none
 	 */
 	public function insert_tracking_pixel() {
-		$dfp_pixel_url = $this->get( 'dfp-tracking-pixel' );
-		if ( empty( $dfp_pixel_url ) ) {
-			return;
-		}
-		sponsorship_manager_insert_tracking_pixel( $dfp_pixel_url );
+		sponsorship_manager()->tracking_pixel->insert_tracking_pixel( $this->get( 'dfp-tracking-pixel' ) );
 	}
 }
