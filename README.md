@@ -68,11 +68,51 @@ When fetching a key, the method looks first among the standard WP term fields (`
 
 Each sponsored post can have its own DFP tracking pixel. The `Sponsorship_Tracking_Pixel` class generates these automatically, although individual posts can override with a custom field. The tracking pixel enables content to be served by WordPress but still logged in the ad server.
 
+#### Configuring the tracking pixel
+
+In your theme, you'll need to a filter like this:
+
+```
+add_filter( 'sponsorship_manager_tracking_pixel_config', function() {
+	return array(
+		'network' => '1234',
+		'sponsorship_campaign' => array(
+			'unit' => 'Campaign_Landing_Page',
+			'size' => '1x1',
+			'key' => 'wp_campaign_id',
+		),
+		'post' => array(
+			'unit' => 'Sponsored_Post',
+			'size' => '1x1',
+			'key' => 'post_id',
+		),
+	);
+} );
+```
+
+In the above array, `'network'` should be the numeric ID for the publisher on DFP. The other top-level array keys refer to the `sponsorship_campaign` taxonomy and _all_ post types where the plugin is enabled. Within each of those arrays, the ad unit name, size, and key (targeting parameter) are required. The plugin automatically uses the `$term->term_id` or `$post->ID` of the campaign or post as the value of the key. [More info here](https://support.google.com/dfp_premium/answer/2623168?rd=1); an ad ops person will recognize all of this if you ask them to provide this info.
+
+So the archive page of a term in the `sponsorship_campaign` taxonomy with `$term->term_id === 5678` would have a tracking pixel URL like:
+```
+http://pubads.g.doubleclick.net/gampad/ad?iu=/1234/Campaign_Landing_Page&c=1446166093157185&sz=1x1&t=wp_campaign_id%3D5678
+```
+
+And a sponsored post with `$post->ID === 5678` would have a tracking pixel URL like:
+```
+http://pubads.g.doubleclick.net/gampad/ad?iu=/1234/Sponsored_Post&c=1446166093157185&sz=1x1&t=post_id%3D5678
+```
+
+#### Triggering the tracking pixel
+
 To trigger the pixel impression, use `Sponsorship_Manager_Post_Template::insert_tracking_pixel()`. This renders a script tag with no dependencies that requests the image after replacing the cache-busting parameter (`c`) with a new, unique integer.
 
 The same thing works for campaigns. You can use `Sponsorship_Manager_Campaign::insert_tracking_pixel()` to log an impression of the campaign hub (landing page).
 
 ## Filters
+
+### sponsorship_manager_tracking_pixel_config
+
+See [above](#configuring-the-tracking-pixel).
 
 ### sponsorship_manager_override_campaign_description
 
