@@ -41,7 +41,7 @@ You can use `sponsorship_post_is_sponsored( $post )` to determine if a post has 
 
 ### Campaign data
 
-Most data you'll need is associated with the campaign selected for the post. To fetch it by key, you can use either `Sponsorship_Manager_Campaign::get()` or `Sponsorship_Manager_Post_Template::get_campaign()`. See (examples)[#examples] below.
+Most data you'll need is associated with the campaign selected for the post. To fetch it by key, you can use either `Sponsorship_Manager_Campaign::get()` or `Sponsorship_Manager_Post_Template::get_campaign()`. See [examples](#examples) below.
 
 Each of these methods takes 3 arguments:
 
@@ -62,7 +62,7 @@ Here are the keys:
 | `tagline` | Defaults to "Sponsored by" but could be something like "Presented by", "Powered by", etc |
 | `richdescription` | Returns contents of a `Fieldmanager_RichTextArea` field; overrides `description` by default. |
 
-When fetching a key, the method looks first among the standard WP term fields (`description` is (the exception)[#sponsorship_manager_override_campaign_description]) then in metadata.
+When fetching a key, the method looks first among the standard WP term fields (`description` is [the exception](#sponsorship_manager_override_campaign_description) ) then in metadata.
 
 ### Tracking pixels
 
