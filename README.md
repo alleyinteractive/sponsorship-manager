@@ -35,6 +35,15 @@ MasterCard
 
 (also, you would not be able to select `London` when editing a post because of the hierarchy depth limit)
 
+## Checking if the plugin is installed
+
+The plugin gets set up at the `after_setup_theme` [action](#https://codex.wordpress.org/Plugin_API/Action_Reference/after_setup_theme), which fires _after_ the theme's `functions.php` is loaded. If you need to check for the plugin before then, use
+
+```
+if ( function_exists( 'sponsorship_manager_setup' ) ) {
+	// do stuff
+```
+
 ## Usage in templates
 
 You can use `sponsorship_post_is_sponsored( $post )` to determine if a post has a sponsor or not. `$post` is optional, and can be an ID or WP_Post object.
@@ -66,13 +75,53 @@ When fetching a key, the method looks first among the standard WP term fields (`
 
 ### Tracking pixels
 
-Each sponsored post can have its own DFP tracking pixel set in post meta. This enables content to be served by WordPress but still logged in the ad server. The client would normally be responsible for inserting the pixel URL.
+Each sponsored post can have its own DFP tracking pixel. The `Sponsorship_Tracking_Pixel` class generates these automatically, although individual posts can override with a custom field. The tracking pixel enables content to be served by WordPress but still logged in the ad server.
+
+#### Configuring the tracking pixel
+
+In your theme, you'll need to a filter like this:
+
+```
+add_filter( 'sponsorship_manager_tracking_pixel_config', function() {
+	return array(
+		'network' => '1234',
+		'sponsorship_campaign' => array(
+			'unit' => 'Campaign_Landing_Page',
+			'size' => '1x1',
+			'key' => 'wp_campaign_id',
+		),
+		'post' => array(
+			'unit' => 'Sponsored_Post',
+			'size' => '1x1',
+			'key' => 'post_id',
+		),
+	);
+} );
+```
+
+In the above array, `'network'` should be the numeric ID for the publisher on DFP. The other top-level array keys refer to the `sponsorship_campaign` taxonomy and _all_ post types where the plugin is enabled. Within each of those arrays, the ad unit name, size, and key (targeting parameter) are required. The plugin automatically uses the `$term->term_id` or `$post->ID` of the campaign or post as the value of the key. [More info here](https://support.google.com/dfp_premium/answer/2623168?rd=1); an ad ops person will recognize all of this if you ask them to provide this info.
+
+So the archive page of a term in the `sponsorship_campaign` taxonomy with `$term->term_id === 5678` would have a tracking pixel URL like:
+```
+http://pubads.g.doubleclick.net/gampad/ad?iu=/1234/Campaign_Landing_Page&c=1446166093157185&sz=1x1&t=wp_campaign_id%3D5678
+```
+
+And a sponsored post with `$post->ID === 5678` would have a tracking pixel URL like:
+```
+http://pubads.g.doubleclick.net/gampad/ad?iu=/1234/Sponsored_Post&c=1446166093157185&sz=1x1&t=post_id%3D5678
+```
+
+#### Triggering the tracking pixel
 
 To trigger the pixel impression, use `Sponsorship_Manager_Post_Template::insert_tracking_pixel()`. This renders a script tag with no dependencies that requests the image after replacing the cache-busting parameter (`c`) with a new, unique integer.
 
 The same thing works for campaigns. You can use `Sponsorship_Manager_Campaign::insert_tracking_pixel()` to log an impression of the campaign hub (landing page).
 
 ## Filters
+
+### sponsorship_manager_tracking_pixel_config
+
+See [above](#configuring-the-tracking-pixel).
 
 ### sponsorship_manager_override_campaign_description
 
@@ -108,15 +157,23 @@ If `true`, plugin will trigger pixel impressions for logged-in users.
 |-------|------|-------------|
 | `$do_pixel` | `bool` | Defaults to `false`. |
 
-### sponsorship_manager_dev_pixel_url
+### sponsorship_manager_override_pixel_url
 
-If you return a string here, it will override the custom field value. This can be used to prevent impressions from being logged on dev environments.
+If you return a string here, it will override the DFP pixel URL. This can be used to prevent impressions from being logged on dev environments.
 
 | Param | Type | Description |
 |-------|------|-------------|
 | `$new_url` | `bool|string` | Defaults to `false`. |
 | `$old_url` | `string` | Original pixel URL |
 | `$param` | `string` | URL parameter that will be replaced before triggering the pixel, e.g. `'c'` for DFP. |
+
+### sponsorship_manager_tracking_pixel_when_logged_in
+
+If `false`, tracking pixels will not be shown for logged-in users.
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `$show` | `bool` | Defaults to `false`. |
 
 ### sponsorship_manager_hide_archiveless
 

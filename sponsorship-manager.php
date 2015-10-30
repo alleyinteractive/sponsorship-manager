@@ -49,7 +49,7 @@ define( 'SPONSORSHIP_MANAGER_CAMPAIGN_TAXONOMY', 'sponsorship_campaign' );
  */
 function sponsorship_manager_setup() {
 	// Load helpers
-	require_once( SPONSORSHIP_MANAGER_PATH . '/inc/helpers.php' );
+	require_once( SPONSORSHIP_MANAGER_PATH . '/inc/modules/class-sponsorship-tracking-pixel.php' );
 
 	// Load archiveless class
 	require_once( SPONSORSHIP_MANAGER_PATH . '/inc/modules/class-sponsorship-archiveless.php' );
