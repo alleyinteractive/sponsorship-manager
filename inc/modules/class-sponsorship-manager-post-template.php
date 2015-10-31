@@ -56,6 +56,9 @@ class Sponsorship_Manager_Post_Template {
 		if ( empty( $this->sponsorship_info['dfp-tracking-pixel'] ) ) {
 			$this->sponsorship_info['dfp-tracking-pixel'] = sponsorship_manager()->tracking_pixel->get_url( get_post_type( $this->post ), $this->post->ID );
 		}
+
+		// replace DFP macro with number that gets randomized before logging pixel impression
+		$this->sponsorship_info['dfp-tracking-pixel'] = str_replace( '%%CACHEBUSTER%%', '123', $this->sponsorship_info['dfp-tracking-pixel'] );
 	}
 
 	/**
