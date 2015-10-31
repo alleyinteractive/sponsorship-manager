@@ -13,7 +13,7 @@ class Sponsorship_Tracking_Pixel {
 	/**
 	 * @var Pixel URL template per https://support.google.com/dfp_premium/answer/2623168?rd=1
 	 */
-	protected $pixel_template = 'http://pubads.g.doubleclick.net/gampad/ad?iu=/%s/%s&c=123&sz=%s&t=%s';
+	protected $pixel_template = 'http://pubads.g.doubleclick.net/gampad/ad?iu=/%s/%s&c=123&sz=%s&%s=%s';
 
 	function __construct() {
 		/**
@@ -47,9 +47,7 @@ class Sponsorship_Tracking_Pixel {
 			return;
 		}
 
-		// double urlencode per https://support.google.com/dfp_premium/answer/2623168?rd=1
-		$key_value = urlencode( urlencode( $key ) . '=' . urlencode( $value ) );
-		return sprintf( $this->pixel_template, $network, $unit, $size, $key_value );
+		return sprintf( $this->pixel_template, $network, $unit, $size, urlencode( $key ), urlencode( $value ) );
 	}
 
 	/**
