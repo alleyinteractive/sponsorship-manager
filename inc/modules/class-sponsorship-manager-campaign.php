@@ -22,7 +22,7 @@ class Sponsorship_Manager_Campaign {
 	/**
 	 * @var array List of campaign term meta keys that refer to attachments
 	 */
-	protected $image_meta_keys = array( 'logo', 'featured-image' );
+	protected $image_meta_keys = array( 'logo-primary', 'logo-secondary', 'featured-image' );
 
 	/**
 	 * Constructor
