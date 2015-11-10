@@ -19,9 +19,13 @@
 			"type" : "group",
 			"title" : {"__" : "Display Fields"},
 			"children" : {
-				"logo" : {
+				"logo-primary" : {
 					"type" : "media",
-					"label" : {"__" : "Campaign Logo"}
+					"label" : {"__" : "Primary Logo"}
+				},
+				"logo-secondary" : {
+					"type" : "media",
+					"label" : {"__" : "Secondary Logo"}
 				},
 				"featured-image" : {
 					"type" : "media",

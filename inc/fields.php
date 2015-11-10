@@ -9,7 +9,8 @@ function sponsorship_manager_fm_tax_sponsorship_campaign_sponsorship_campaign_di
 	$fm = new Fieldmanager_Group( array(
 		'name' => 'sponsorship-campaign-display',
 		'children' => array(
-			'logo' => new Fieldmanager_Media( __( 'Campaign Logo', 'sponsorship-manager' ) ),
+			'logo-primary' => new Fieldmanager_Media( __( 'Primary Logo', 'sponsorship-manager' ) ),
+			'logo-secondary' => new Fieldmanager_Media( __( 'Secondary Logo', 'sponsorship-manager' ) ),
 			'featured-image' => new Fieldmanager_Media( __( 'Campaign Featured Image', 'sponsorship-manager' ) ),
 			'external-url' => new Fieldmanager_Link( array(
 				'label' => __( 'Campaign External URL', 'sponsorship-manager' ),
