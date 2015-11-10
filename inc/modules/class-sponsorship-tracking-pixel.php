@@ -110,7 +110,7 @@ class Sponsorship_Tracking_Pixel {
 
 		// cases where we don't want to trigger a pixel
 		$trigger_for_logged_in = is_user_logged_in() && apply_filters( 'sponsorship_manager_tracking_pixel_when_logged_in', false );
-		if ( is_admin() || is_preview() || $trigger_for_logged_in ) {
+		if ( is_admin() || is_preview() || ! $trigger_for_logged_in ) {
 			return;
 		}
 
