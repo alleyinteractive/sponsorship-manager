@@ -54,9 +54,11 @@ Most data you'll need is associated with the campaign selected for the post. To 
 
 Each of these methods takes 3 arguments:
 
-1. Required key
-1. Optional boolean. Defaults to `false`. If `true`, data will be fetched from the _parent campaign_, if one exists.
-1. Optional image size. If your key refers to an image, use this to specify the size to fetch using `wp_get_attachment_image_src()`. Defaults to `'full'`.
+| Arg | Type | Description |
+|-----|------|-------------|
+| `$key` | `string` | Required key to fetch |
+| `$parent` | `boolean` | Optional. Defaults to `false`. If `true`, data will be fetched from the _parent campaign_, if one exists. |
+| `$img_size` | `string` | Optional. If `$key` refers to an image, specify the size to fetch using `wp_get_attachment_image_src()`. Defaults to `'full'`. |
 
 Here are the keys:
 
@@ -64,7 +66,8 @@ Here are the keys:
 |-----|-------------|
 | WP Term Fields | Regular [term fields](https://codex.wordpress.org/Function_Reference/get_term_by#Return_Values) can be fetched by key |
 | `description` | The standard WP term description field is **replaced by `richdescription`**, although this can be turned off. See [Filters](#filters). |
-| `logo` | Returns array using `wp_get_attachment_image_src()`, remember to pass `$size` as the third parameter to the getter method |
+| `logo-primary` | Returns array using `wp_get_attachment_image_src()`, remember to pass `$size` as the third parameter to the getter method |
+| `logo-secondary` | Returns array using `wp_get_attachment_image_src()`, remember to pass `$size` as the third parameter to the getter method |
 | `featured-image` | Returns array using `wp_get_attachment_image_src()`, remember to pass `$size` as the third parameter to the getter method |
 | `external-url` | External URL associated with the Campaign, e.g. the sponsor's website. |
 | `hub` | Internal URL for the campaign, i.e. the term archive link |
@@ -195,7 +198,7 @@ See `Sponsorship_Manager_Archiveless::posts_where()` for more info.
 	<div class="sponsorship">
 		<h3><?php echo esc_html( $sponsorship->get_campaign( 'name' ) ); ?></h3>
 		<p><?php echo wp_kses_post( $sponsorship->get_campaign( 'richdescription' ) ); ?></p>
-		<img src="<?php echo esc_url( $sponsorship->get_campaign( 'logo')[0] ); ?>" />
+		<img src="<?php echo esc_url( $sponsorship->get_campaign( 'logo-primary')[0] ); ?>" />
 		<?php $sponsorship->insert_tracking_pixel(); ?>
 	</div>
 <?php endif; ?>
@@ -207,7 +210,7 @@ See `Sponsorship_Manager_Archiveless::posts_where()` for more info.
 	<div class="sponsorship">
 		<h3><?php echo esc_html( $campaign->get( 'name' ) ); ?></h3>
 		<p><?php echo wp_kses_post( $campaign->get( 'richdescription' ) ); ?></p>
-		<img src="<?php echo esc_url( $campaign->get( 'logo')[0] ); ?>" />
+		<img src="<?php echo esc_url( $campaign->get( 'logo-primary')[0] ); ?>" />
 		<?php $campaign->insert_tracking_pixel(); ?>
 	</div>
 <?php endif; ?>

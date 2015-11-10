@@ -63,7 +63,7 @@ class Sponsorship_Manager_Post_Template {
 	 *
 	 * @param string $key Key to look for
 	 * @param bool $parent Optional. Defaults to false, set to true to check parent term
-	 * @param string $img_size Optional. If $key is an image field ('logo' or 'featured-image'), specify an image size or default to 'full'
+	 * @param string $img_size Optional. If $key is an image field, specify an image size or default to 'full'
 	 * @return mixed|null Value of key if found, null if not found
 	 */
 	public function get_campaign( $key, $parent = false, $img_size = 'full' ) {

@@ -87,7 +87,7 @@ class Sponsorship_Manager_Campaign {
 	 *
 	 * @param string $key Name of key to look for
 	 * @param bool $parent Optional. Defaults to false, use true to get data from parent campaign
-	 * @param string $img_size Optional. If $key is an image field ('logo' or 'featured-image'), specify an image size or default to 'full'
+	 * @param string $img_size Optional. If $key is an image, specify an image size or default to 'full'
 	 * @return mixed|null Value of key or null if not found
 	 */
 	public function get( $key, $parent = false, $img_size = 'full' ) {
