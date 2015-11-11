@@ -11,7 +11,7 @@ Sponsorship campaigns are organized like this:
 ```
 Sponsored Post (object in any WP post_type)
 |-- Sponsorship Campaign (term in sponsorship_campaign hierarchical taxonomy)
-    |-- Parent Campaign (may exist as parent term of primary campaign)
+    |-- Parent Campaign (optional, may exist as parent term of primary campaign)
 ```
 
 A post can only be associated with _one_ term in the `sponsorship_campaign` taxonomy, and that term may have 0 or 1 ancestors, i.e. no more than 2 levels of hierarchy.
@@ -46,11 +46,20 @@ if ( function_exists( 'sponsorship_manager_setup' ) ) {
 
 ## Usage in templates
 
+There are two classes that are used in templating:
+
+1. `Sponsorship_Manager_Campaign` represents the sponsorship campaign (i.e. the term in the `sponsorship_campaign` taxonomy)
+2. `Sponsorship_Manager_Post_Template` represents a piece of content (i.e. a `WP_Post` object) that is part of a sponsorship campaign.
+
+**In general, if you are templating a representation of the campaign (e.g. a landing page for the sponsorship), you'll want to instantiate `Sponsorship_Manager_Campaign` and use its methods.**
+
+**If you are templating a single sponsored article (e.g. a `single.php` template or a thumbnail/headline in a homepage grid), you'll want to instantiate `Sponsorship_Manager_Post_Template` and use its methods.**
+
 You can use `sponsorship_post_is_sponsored( $post )` to determine if a post has a sponsor or not. `$post` is optional, and can be an ID or WP_Post object.
 
 ### Campaign data
 
-Most data you'll need is associated with the campaign selected for the post. To fetch it by key, you can use either `Sponsorship_Manager_Campaign::get()` or `Sponsorship_Manager_Post_Template::get_campaign()`. See [examples](#examples) below.
+Most of the data you'll need is associated with the campaign term selected for the post. To fetch it by key, you can use either `Sponsorship_Manager_Campaign::get()` or `Sponsorship_Manager_Post_Template::get_campaign()`. See [examples](#examples) below.
 
 Each of these methods takes 3 arguments:
 
@@ -121,6 +130,8 @@ To trigger the pixel impression, use `Sponsorship_Manager_Post_Template::insert_
 Note that, by default, pixel impressions are not counted for logged in users, although the pixel URL is console logged for debugging. You can change this behavior with a [filter](#sponsorship_manager_tracking_pixel_when_logged_in)
 
 The same thing works for campaigns. You can use `Sponsorship_Manager_Campaign::insert_tracking_pixel()` to log an impression of the campaign hub (landing page).
+
+**Note the distinction between `Sponsorship_Manager_Post_Template::insert_tracking_pixel()` for individual posts and `Sponsorship_Manager_Campaign::insert_tracking_pixel()` for campaign landing pages.**
 
 ## Filters
 
@@ -196,7 +207,8 @@ See `Sponsorship_Manager_Archiveless::posts_where()` for more info.
 
 ### In a post template like `single.php`
 ```
-<?php if ( sponsorship_post_is_sponsored() ) : $sponsorship = new Sponsorship_Manager_Post_Template(); ?>
+<?php if ( sponsorship_post_is_sponsored() ) :
+	$sponsorship = new Sponsorship_Manager_Post_Template(); ?>
 	<div class="sponsorship">
 		<h3><?php echo esc_html( $sponsorship->get_campaign( 'name' ) ); ?></h3>
 		<p><?php echo wp_kses_post( $sponsorship->get_campaign( 'richdescription' ) ); ?></p>
@@ -208,7 +220,25 @@ See `Sponsorship_Manager_Archiveless::posts_where()` for more info.
 
 ### In a term archive template like a generic `taxonomy.php`
 ```
-<?php if ( is_tax( 'sponsorship_campaign' ) ) : $campaign = new Sponsorship_Manager_Campaign( get_queried_object() ); ?>
+<?php if ( is_tax( 'sponsorship_campaign' ) ) :
+	$campaign = new Sponsorship_Manager_Campaign( get_queried_object() ); ?>
+	<div class="sponsorship">
+		<h3><?php echo esc_html( $campaign->get( 'name' ) ); ?></h3>
+		<p><?php echo wp_kses_post( $campaign->get( 'richdescription' ) ); ?></p>
+		<img src="<?php echo esc_url( $campaign->get( 'logo-primary')[0] ); ?>" />
+		<?php $campaign->insert_tracking_pixel(); ?>
+	</div>
+<?php endif; ?>
+```
+
+### If you are using a custom campaign landing page other than the term archive
+
+For instance, if you have the campaign landing page at a `page` like `mysite.com/cool-sponsor` instead of the default term archive link `mysite.com/sponsor/cool-sponsor`.
+
+```
+<?php if ( sponsorship_post_is_sponsored() ) :
+	$sponsorship = new Sponsorship_Manager_Post_Template();
+	$campaign = $sponsorship->get_campaign_object(); ?>
 	<div class="sponsorship">
 		<h3><?php echo esc_html( $campaign->get( 'name' ) ); ?></h3>
 		<p><?php echo wp_kses_post( $campaign->get( 'richdescription' ) ); ?></p>
