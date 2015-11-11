@@ -70,7 +70,7 @@ Here are the keys:
 | `logo-secondary` | Returns array using `wp_get_attachment_image_src()`, remember to pass `$size` as the third parameter to the getter method |
 | `featured-image` | Returns array using `wp_get_attachment_image_src()`, remember to pass `$size` as the third parameter to the getter method |
 | `external-url` | External URL associated with the Campaign, e.g. the sponsor's website. |
-| `hub` | Internal URL for the campaign, i.e. the term archive link |
+| `hub` | Internal URL for the campaign, defaults to the term archive link but can be customized |
 | `tagline` | Defaults to "Sponsored by" but could be something like "Presented by", "Powered by", etc |
 | `richdescription` | Returns contents of a `Fieldmanager_RichTextArea` field; overrides `description` by default. |
 
