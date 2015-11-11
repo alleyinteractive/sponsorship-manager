@@ -94,6 +94,22 @@ class Sponsorship_Tracking_Pixel {
 	<?php }
 
 	/**
+	 * Print pixel URL in console to aid in debugging when user is logged in
+	 * and 'sponsorship_manager_tracking_pixel_when_logged_in' filter is false
+	 *
+	 * @param string Pixel URL
+	 */
+	protected function console_log_pixel_url( $pixel_url ) {
+		?>
+		<script>
+			if ( typeof console !== 'undefined' && typeof console.log !== 'undefined' ) {
+				<?php // the only escaping we need is to avoid breaking the JS string ?>
+				console.log( 'Tracking pixel <?php echo addslashes( $pixel_url ); ?> not inserted' );
+			}
+		</script>
+	<?php }
+
+	/**
 	 * Helper function for tracking pixel
 	 *
 	 * @param string $pixel_url URL of tracking pixel
@@ -112,6 +128,7 @@ class Sponsorship_Tracking_Pixel {
 		// cases where we don't want to trigger a pixel
 		$trigger_for_logged_in = is_user_logged_in() && apply_filters( 'sponsorship_manager_tracking_pixel_when_logged_in', false );
 		if ( is_admin() || is_preview() || ! $trigger_for_logged_in ) {
+			$this->console_log_pixel_url( $pixel_url );
 			return;
 		}
 
