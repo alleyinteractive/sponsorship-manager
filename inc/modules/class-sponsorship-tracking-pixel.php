@@ -27,7 +27,7 @@ class Sponsorship_Tracking_Pixel {
 	}
 
 	/**
-	 * Build url for type ( taxonomy or post type ) from config
+	 * Build url for type ( taxonomy or post type ) from config.
 	 *
 	 * @param string $type Taxonomy or post type to retrieve from config
 	 * @param int|string $id Numeric ID of post or term
@@ -37,6 +37,7 @@ class Sponsorship_Tracking_Pixel {
 			return;
 		}
 
+		// see https://support.google.com/dfp_premium/answer/2623168?rd=1
 		$network = $this->get_config( 'network' );
 		$unit = $this->get_config( $type, 'unit' );
 		$size = $this->get_config( $type, 'size' );

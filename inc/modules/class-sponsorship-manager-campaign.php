@@ -64,6 +64,9 @@ class Sponsorship_Manager_Campaign {
 			$metadata['dfp-tracking-pixel'] = sponsorship_manager()->tracking_pixel->get_url( $term->taxonomy, $term->term_id );
 		}
 
+		// replace DFP macro with number that gets randomized before logging pixel impression
+		$metadata['dfp-tracking-pixel'] = str_replace( '%%CACHEBUSTER%%', '123', $metadata['dfp-tracking-pixel'] );
+
 		/**
 		 * Filter sponsorship-campaign-display Fieldmanager metadata
 		 *
