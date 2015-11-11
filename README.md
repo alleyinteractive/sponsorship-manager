@@ -118,6 +118,8 @@ http://pubads.g.doubleclick.net/gampad/ad?iu=/1234/Sponsored_Post&c=144616609315
 
 To trigger the pixel impression, use `Sponsorship_Manager_Post_Template::insert_tracking_pixel()`. This renders a script tag with no dependencies that requests the image after replacing the cache-busting parameter (`c`) with a new, unique integer.
 
+Note that, by default, pixel impressions are not counted for logged in users, although the pixel URL is console logged for debugging. You can change this behavior with a [filter](#sponsorship_manager_tracking_pixel_when_logged_in)
+
 The same thing works for campaigns. You can use `Sponsorship_Manager_Campaign::insert_tracking_pixel()` to log an impression of the campaign hub (landing page).
 
 ## Filters
@@ -172,7 +174,7 @@ If you return a string here, it will override the DFP pixel URL. This can be use
 
 ### sponsorship_manager_tracking_pixel_when_logged_in
 
-If `false`, tracking pixels will not be shown for logged-in users.
+If `false`, tracking pixels will not be shown for logged-in users but the URL will be console logged for debugging.
 
 | Param | Type | Description |
 |-------|------|-------------|
