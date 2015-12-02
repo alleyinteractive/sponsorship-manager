@@ -35,6 +35,9 @@ class Sponsorship_Manager_Archiveless {
 
 		if ( is_admin() ) {
 			add_action( 'add_meta_boxes', array( $this, 'fool_edit_form' ) );
+			add_action( 'parse_query', array( $this, 'allow_archiveless_when_publish' ), 10, 1 );
+		} elseif( defined( 'WP_CLI' ) && WP_CLI ) {
+			add_action( 'parse_query', array( $this, 'allow_archiveless_when_publish' ), 10, 1 );
 		} else {
 			add_filter( 'posts_where', array( $this, 'posts_where' ), 10, 2 );
 		}
@@ -52,7 +55,7 @@ class Sponsorship_Manager_Archiveless {
 		register_post_status( $this->status, apply_filters( 'archiveless_post_status_args', array(
 			'label'                     => __( 'Hidden from Archives', 'archiveless' ),
 			'label_count'               => _n_noop( 'Hidden from Archives <span class="count">(%s)</span>', 'Hidden from Archives <span class="count">(%s)</span>', 'archiveless' ),
-			'exclude_from_search'       => true,
+			'exclude_from_search'       => ! ( defined( 'WP_CLI' ) && WP_CLI ),
 			'public'                    => true,
 			'publicly_queryable'        => true,
 			'show_in_admin_status_list' => true,
@@ -96,6 +99,24 @@ class Sponsorship_Manager_Archiveless {
 		global $post;
 		if ( $this->status == $post->post_status ) {
 			$post->post_status = 'publish';
+		}
+	}
+
+	/**
+	 * In wp-admin and WP_CLI, if a WP_Query allows 'publish', make sure it also allows 'archiveless'
+	 * @param WP_Query $query
+	 * @return none
+	 */
+	public function allow_archiveless_when_publish( $query ) {
+		$status = $query->get( 'post_status' );
+		if ( 'any' === $status ) {
+			return;
+		} elseif ( is_string( $status ) ) {
+			$status = explode( ',', $status );
+		}
+		if ( in_array( 'publish', $status, true ) && ! in_array( $this->status, $status, true ) ) {
+			$status[] = $this->status;
+			$query->set( 'post_status', $status );
 		}
 	}
 
