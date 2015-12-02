@@ -52,9 +52,9 @@ class Sponsorship_Manager_Archiveless {
 		 *
 		 * @see register_post_status().
 		 */
-		register_post_status( $this->status, apply_filters( 'archiveless_post_status_args', array(
+		register_post_status( $this->status, apply_filters( 'sponsorship_manager_archiveless_post_status_args', array(
 			'label'                     => __( 'Hidden from Archives', 'archiveless' ),
-			'label_count'               => _n_noop( 'Hidden from Archives <span class="count">(%s)</span>', 'Hidden from Archives <span class="count">(%s)</span>', 'archiveless' ),
+			'label_count'               => _n_noop( 'Hidden from Archives <span class="count">(%s)</span>', 'Hidden from Archives <span class="count">(%s)</span>', 'sponsorship-manager' ),
 			'exclude_from_search'       => ! ( defined( 'WP_CLI' ) && WP_CLI ),
 			'public'                    => true,
 			'publicly_queryable'        => true,

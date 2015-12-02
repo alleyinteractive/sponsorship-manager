@@ -191,9 +191,18 @@ If `false`, tracking pixels will not be shown for logged-in users but the URL wi
 |-------|------|-------------|
 | `$show` | `bool` | Defaults to `false`. |
 
+### sponsorship_manager_archiveless_post_status_args
+
+Filters the arguments passed to `register_post_status()` for the `archiveless` status
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `$args` | `array` | See `Sponsorship_Manager_Archiveless::register_post_status()` |
+
+
 ### sponsorship_manager_hide_archiveless
 
-Allows you to hide or unhide sponsored posts where the "Hide from queries" option is checked. This filter can be applied for specific `WP_Query` cases.
+This filter can be applied for specific `WP_Query` cases. Allows you to hide or unhide sponsored posts where the "Hide from queries" option is checked.
 
 See `Sponsorship_Manager_Archiveless::posts_where()` for more info.
 
