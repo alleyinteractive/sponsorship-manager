@@ -74,6 +74,15 @@ class Sponsorship_Manager_Post_Template {
 	}
 
 	/**
+	 * get Sponsorship_Manager_Sponsorship_Campaign object associated with this post
+	 *
+	 * @return Sponsorship_Manager_Sponsorship_Campaign
+	 */
+	public function get_campaign_object() {
+		return $this->campaign;
+	}
+
+	/**
 	 * Get a key from the sponsorship data for this particular post (not the sponsor or campaign)
 	 * @param $key
 	 * @return mixed|null Value for the key or null
