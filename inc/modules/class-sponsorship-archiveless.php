@@ -36,7 +36,7 @@ class Sponsorship_Manager_Archiveless {
 		if ( is_admin() ) {
 			add_action( 'add_meta_boxes', array( $this, 'fool_edit_form' ) );
 			add_action( 'parse_query', array( $this, 'allow_archiveless_when_publish' ), 10, 1 );
-		} elseif( defined( 'WP_CLI' ) && WP_CLI ) {
+		} elseif ( defined( 'WP_CLI' ) && WP_CLI ) {
 			add_action( 'parse_query', array( $this, 'allow_archiveless_when_publish' ), 10, 1 );
 		} else {
 			add_filter( 'posts_where', array( $this, 'posts_where' ), 10, 2 );
