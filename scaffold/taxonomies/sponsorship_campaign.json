@@ -36,10 +36,23 @@
 					"label": {"__": "Campaign External URL"},
 					"description" : {"__":"e.g. sponsor's website."}
 				},
+				"hub-type" : {
+					"label" : {"__" : "Campaign Hub Type"},
+					"type" : "select",
+					"options" : {
+						"term-link" : {"__" : "Term archive, e.g. site.com/sponsors/campaign-name"},
+						"custom" : {"__" : "Specify a URL for the campaign hub page"},
+						"none" : {"__" : "Do not link to a campaign hub page"}
+					}
+				},
 				"hub" : {
 					"type" : "link",
 					"label" : {"__":"Campaign Hub URL"},
-					"description" : {"__" : "URL of landing page for this campaign. If blank, will default to term archive link."}
+					"display_if" : {
+						"src" : "hub-type",
+						"value" : "custom"
+					},
+					"description" : {"__" : "URL of custom custom page for this campaign."}
 				},
 				"dfp-tracking-pixel" : {
 					"label" : {"__" : "DFP Tracking Pixel URL for Campaign Hub Page"},

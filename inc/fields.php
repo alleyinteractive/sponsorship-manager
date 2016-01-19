@@ -16,9 +16,21 @@ function sponsorship_manager_fm_tax_sponsorship_campaign_sponsorship_campaign_di
 				'label' => __( 'Campaign External URL', 'sponsorship-manager' ),
 				'description' => __( "e.g. sponsor's website.", 'sponsorship-manager' ),
 			) ),
+			'hub-type' => new Fieldmanager_Select( array(
+				'label' => __( 'Campaign Hub Type', 'sponsorship-manager' ),
+				'options' => array(
+					'term-link' => __( 'Term archive, e.g. site.com/sponsors/campaign-name', 'sponsorship-manager' ),
+					'custom' => __( 'Specify a URL for the campaign hub page', 'sponsorship-manager' ),
+					'none' => __( 'Do not link to a campaign hub page', 'sponsorship-manager' ),
+				),
+			) ),
 			'hub' => new Fieldmanager_Link( array(
 				'label' => __( 'Campaign Hub URL', 'sponsorship-manager' ),
-				'description' => __( 'URL of landing page for this campaign. If blank, will default to term archive link.', 'sponsorship-manager' ),
+				'display_if' => array(
+					'src' => 'hub-type',
+					'value' => 'custom',
+				),
+				'description' => __( 'URL of custom custom page for this campaign.', 'sponsorship-manager' ),
 			) ),
 			'dfp-tracking-pixel' => new Fieldmanager_Link( array(
 				'label' => __( 'DFP Tracking Pixel URL for Campaign Hub Page', 'sponsorship-manager' ),
