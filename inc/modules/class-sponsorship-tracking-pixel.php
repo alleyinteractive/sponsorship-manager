@@ -68,7 +68,8 @@ class Sponsorship_Tracking_Pixel {
 	}
 
 	/**
-	 * Define tracking pixel function without remove other JS functionality added to the sponsorshipManagerPlugin global
+	 * Define tracking pixel function without removing other JS functionality 
+	 * that might have been added to the sponsorshipManagerPlugin global
 	 */
 	public function define_js() {
 		?>
