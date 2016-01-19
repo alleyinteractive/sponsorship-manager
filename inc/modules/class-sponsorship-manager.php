@@ -95,6 +95,31 @@ class Sponsorship_Manager {
 	public function add_campaign( $campaign ) {
 		$this->campaigns[ $campaign->get_id() ] = $campaign;
 	}
+
+	/**
+	 * Create a fallback meta box if there are no terms in the sponsorship_campaign taxonomy
+	 */
+	public function fallback_meta_box() {
+		add_meta_box(
+			'sponsorship-campaign-fallback',
+			__( 'Sponsorship Campaigns', 'sponsorship-manager' ),
+			array( $this, 'render_fallback_meta_box' ),
+			'page'
+		);
+	}
+
+	/**
+	 * Content of fallback meta box
+	 */
+	public function render_fallback_meta_box() {
+		echo '<p>' . esc_html__( 'No Sponsorship Campaigns are available.', 'sponsorship-manager' ) . '</p>';
+		/*
+		 * to do: custom capabilities for sponsorship_campaign taxonomy
+		 */
+		if ( current_user_can( 'manage_categories' ) ) {
+			echo '<p>' . sprintf( __( 'You can add one <a href="%s">here</a>.', 'sponsorship-manager' ), admin_url( 'edit-tags.php?taxonomy=sponsorship_campaign' ) ) . '</p>';
+		}
+	}
 }
 
 /**
