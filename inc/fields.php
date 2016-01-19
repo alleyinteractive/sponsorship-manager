@@ -26,7 +26,8 @@ function sponsorship_manager_fm_tax_sponsorship_campaign_sponsorship_campaign_di
 			) ),
 			'tagline' => new Fieldmanager_TextField( array(
 				'label' => __( 'Tagline', 'sponsorship-manager' ),
-				'default_value' => __( 'Sponsored by ', 'sponsorship-manager' ),
+				'default_value' => __( 'Sponsored content by ', 'sponsorship-manager' ),
+				'description' => __( 'Use a phrase clearly indicating that this is a paid advertisement.', 'sponsorship-manager' ),
 			) ),
 			'richdescription' => new Fieldmanager_RichTextArea( __( 'Campaign Description', 'sponsorship-manager' ) ),
 		),

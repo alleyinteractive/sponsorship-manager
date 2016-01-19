@@ -49,7 +49,8 @@
 				"tagline" : {
 					"type" : "text",
 					"label" : { "__" : "Tagline" },
-					"default_value" : {"__" : "Sponsored by "}
+					"default_value" : {"__" : "Sponsored content by "},
+					"description" : {"__": "Use a phrase clearly indicating that this is a paid advertisement."}
 				},
 				"richdescription" : {
 					"type" : "richtextarea",
