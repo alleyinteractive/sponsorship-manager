@@ -82,6 +82,7 @@ function sponsorship_manager_fallback_meta_box() {
 		'get' => 'all',
 		'fields' => 'count',
 	) );
+
 	if ( is_wp_error( $campaigns ) || 0 === intval( $campaigns )  ) {
 		foreach ( sponsorship_manager()->get_enabled_post_types() as $post_type ) {
 			remove_action( 'fm_post_' . $post_type, 'sponsorship_manager_fm_sponsorship_info' );
@@ -89,7 +90,7 @@ function sponsorship_manager_fallback_meta_box() {
 		add_action( 'add_meta_boxes', array( sponsorship_manager(), 'fallback_meta_box' ) );
 	}
 }
-sponsorship_manager_fallback_meta_box();
+add_action( 'init', 'sponsorship_manager_fallback_meta_box', 11 );
 
 /**
  * hide term description field since we have a Fieldmanager_RichTextArea instead
