@@ -11,6 +11,12 @@ class Sponsorship_Tracking_Pixel {
 	protected $config;
 
 	/**
+	 * @var Whether we are on the post-new.php screen
+	 */
+	protected $is_post_new = false;
+
+
+	/**
 	 * @var Pixel URL template per https://support.google.com/dfp_premium/answer/2623168?rd=1
 	 */
 	protected $pixel_template = 'http://pubads.g.doubleclick.net/gampad/ad?iu=/%s/%s&c=123&sz=%s&t=%s';
@@ -24,10 +30,12 @@ class Sponsorship_Tracking_Pixel {
 		$this->config = apply_filters( 'sponsorship_manager_tracking_pixel_config', null );
 
 		add_action( 'wp_head', array( $this, 'define_js' ) );
+		add_action( 'load-post.php', array( $this, 'display_targeting_info' ) );
+		add_action( 'load-post-new.php', array( $this, 'display_targeting_info' ) );
 	}
 
 	/**
-	 * Build url for type ( taxonomy or post type ) from config.
+	 * Build url for type ( taxonomy or post type ) from config. Do not call this directly, as it may have been overridden
 	 *
 	 * @param string $type Taxonomy or post type to retrieve from config
 	 * @param int|string $id Numeric ID of post or term
@@ -68,7 +76,7 @@ class Sponsorship_Tracking_Pixel {
 	}
 
 	/**
-	 * Define tracking pixel function without removing other JS functionality 
+	 * Define tracking pixel function without removing other JS functionality
 	 * that might have been added to the sponsorshipManagerPlugin global
 	 */
 	public function define_js() {
@@ -136,5 +144,58 @@ class Sponsorship_Tracking_Pixel {
 		?>
 			<script>sponsorshipManagerPlugin.insertPixel( <?php echo wp_json_encode( $pixel_url ); ?>, <?php echo wp_json_encode( $param ); ?> );</script>
 		<?php
+	}
+
+	/**
+	 * Setup action to render targeting info when adding/editing a post
+	 */
+	public function display_targeting_info() {
+		$this->is_post_new = 'load-post-new.php' === current_filter();
+		add_filter( 'fm_element_markup_end', array( $this, 'render_targeting_info' ), 10, 2 );
+	}
+
+	/**
+	 * Display DFP targeting setup info when adding/editing a post
+	 * @param string $html HTML output
+	 * @param objct $field Fieldmanager_Field object
+	 * @return string HTML ouput
+	 */
+	public function render_targeting_info( $html, $field ) {
+		// check field
+		$post_type = get_post_type();
+		if ( 'sponsorship-info' !== $field->name || ! in_array( $post_type, sponsorship_manager()->get_enabled_post_types(), true ) ) {
+			return $html;
+		}
+
+
+		$targeting_info = '<div class="sponsorship-manager targeting-info">' .
+			'<h4>' . esc_html__( 'DFP Targeting Info', 'sponsorship-manager' ) . '</h4>';
+
+		// creating a new post
+		if ( $this->is_post_new ) {
+			$targeting_info .= '<p>' . esc_html__( 'Targeting info will be available after selecting a Sponsorship Campaign and saving.', 'sponsorship-manager' ) . '</p>';
+		}
+		// editing a post that does not have a sponsor
+		elseif ( ! sponsorship_post_is_sponsored() ) {
+			return $html;
+		}
+		// post is sponsored in WP but DFP is not configured
+		elseif ( empty( $this->config[ $post_type ] ) ) {
+			$targeting_info .= '<p>' . esc_html__( 'Targeting info is not available for this post type.', 'sponsorship-manager' ) . '</p>';
+		}
+		// post is sponsored and DFP is configured
+		else {
+			$targeting_info .= '<p>' . esc_html__( 'Ad Unit: ', 'sponsorship-manager' ) . esc_html( $this->config[ $post_type ]['unit'] ) . '<br>';
+			$targeting_info .= esc_html__( 'Creative Size: ', 'sponsorship-manager' ) . esc_html( $this->config[ $post_type ]['size'] ) . '<br>';
+			$targeting_info .= esc_html__( 'Key: ', 'sponsorship-manager' ) . esc_html( $this->config[ $post_type ]['key'] ) . '<br>';
+			$targeting_info .= esc_html__( 'Value: ', 'sponsorship-manager' ) . intval( get_the_ID() ) . '</p>';
+
+			$sponsorship = new Sponsorship_Manager_Post_Template();
+			$targeting_info .= '<p>' . esc_html__( 'Tracking Pixel URL: ', 'sponsorship-manager' ) . esc_url( $sponsorship->get_post_sponsorship( 'dfp-tracking-pixel' ) ) . '</p>';
+		}
+
+		$targeting_info .= '</div><!-- /.targeting-info -->';
+
+		return $html . "\n" . $targeting_info;
 	}
 }
