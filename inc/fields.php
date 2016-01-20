@@ -1,14 +1,13 @@
 <?php
 
 
-/* begin fm:tax_sponsorship_campaign:sponsorship-campaign-display */
 /**
  * `sponsorship-campaign-display` Fieldmanager fields.
  */
 function sponsorship_manager_fm_tax_sponsorship_campaign_sponsorship_campaign_display() {
 	$fm = new Fieldmanager_Group( array(
 		'name' => 'sponsorship-campaign-display',
-		'children' => array(
+		'children' => apply_filters( 'sponsorship_manager_term_fields', array(
 			'logo-primary' => new Fieldmanager_Media( __( 'Primary Logo', 'sponsorship-manager' ) ),
 			'logo-secondary' => new Fieldmanager_Media( __( 'Secondary Logo', 'sponsorship-manager' ) ),
 			'featured-image' => new Fieldmanager_Media( __( 'Campaign Featured Image', 'sponsorship-manager' ) ),
@@ -42,21 +41,19 @@ function sponsorship_manager_fm_tax_sponsorship_campaign_sponsorship_campaign_di
 				'description' => __( 'Use a phrase clearly indicating that this is a paid advertisement.', 'sponsorship-manager' ),
 			) ),
 			'richdescription' => new Fieldmanager_RichTextArea( __( 'Campaign Description', 'sponsorship-manager' ) ),
-		),
+		) ),
 	) );
 	$fm->add_term_form( __( 'Display Fields', 'sponsorship-manager' ), array( 'sponsorship_campaign' ) );
 }
 add_action( 'fm_term_sponsorship_campaign', 'sponsorship_manager_fm_tax_sponsorship_campaign_sponsorship_campaign_display' );
-/* end fm:tax_sponsorship_campaign:sponsorship-campaign-display */
 
-/* begin fm:sponsorship-info */
 /**
  * `sponsorship-info` Fieldmanager fields.
  */
 function sponsorship_manager_fm_sponsorship_info() {
 	$fm = new Fieldmanager_Group( array(
 		'name' => 'sponsorship-info',
-		'children' => array(
+		'children' => apply_filters( 'sponsorship_manager_post_fields', array(
 			'sponsorship-campaign' => new Fieldmanager_Select( array(
 				'label' => __( 'Select Campaign', 'sponsorship-manager' ),
 				'first_empty' => true,
@@ -73,14 +70,13 @@ function sponsorship_manager_fm_sponsorship_info() {
 				'description' => __( "Use this field to override default DFP pixel URL. Include 'c' parameter; cache busting will be handled on output.", 'sponsorship-manager' ),
 			) ),
 			'archiveless' => new Fieldmanager_Checkbox( __( 'Hide from standard frontend queries (Recent Posts, author archive, etc.) and RSS feeds', 'sponsorship-manager' ) ),
-		),
+		) ),
 	) );
 	$fm->add_meta_box( __( 'Sponsorship Campaign', 'sponsorship-manager' ), sponsorship_manager()->get_enabled_post_types() );
 }
 foreach ( sponsorship_manager()->get_enabled_post_types() as $post_type ) {
 	add_action( 'fm_post_' . $post_type, 'sponsorship_manager_fm_sponsorship_info' );
 }
-/* end fm:sponsorship-info */
 
 /**
  * Render fallback Sponsorship Campaigns meta box if taxonomy is empty

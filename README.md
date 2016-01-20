@@ -211,6 +211,21 @@ See `Sponsorship_Manager_Archiveless::posts_where()` for more info.
 | `$hide` | `bool` | Return `true` to hide archiveless posts for this `$query`, or `false` to show them. |
 | `$query` | `WP_Query` | Current query object |
 
+### sponsorship_manager_post_fields
+
+Applied to child fields in the `sponsorship-info` Fieldmanager Group for posts in enabled post types
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `$fields` | `array` | See `inc/fields.php` |
+
+### sponsorship_manager_term_fields
+
+Applied to child fields in the `sponsorship-campaign-display` Fieldmanager Group for terms in the `sponsorship_campaign` taxonomy
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `$fields` | `array` | See `inc/fields.php` |
 
 ## Examples
 
