@@ -16,9 +16,21 @@ function sponsorship_manager_fm_tax_sponsorship_campaign_sponsorship_campaign_di
 				'label' => __( 'Campaign External URL', 'sponsorship-manager' ),
 				'description' => __( "e.g. sponsor's website.", 'sponsorship-manager' ),
 			) ),
+			'hub-type' => new Fieldmanager_Select( array(
+				'label' => __( 'Campaign Hub Type', 'sponsorship-manager' ),
+				'options' => array(
+					'term-link' => __( 'Term archive, e.g. site.com/sponsors/campaign-name', 'sponsorship-manager' ),
+					'custom' => __( 'Specify a URL for the campaign hub page', 'sponsorship-manager' ),
+					'none' => __( 'Do not link to a campaign hub page', 'sponsorship-manager' ),
+				),
+			) ),
 			'hub' => new Fieldmanager_Link( array(
 				'label' => __( 'Campaign Hub URL', 'sponsorship-manager' ),
-				'description' => __( 'URL of landing page for this campaign. If blank, will default to term archive link.', 'sponsorship-manager' ),
+				'display_if' => array(
+					'src' => 'hub-type',
+					'value' => 'custom',
+				),
+				'description' => __( 'URL of custom custom page for this campaign.', 'sponsorship-manager' ),
 			) ),
 			'dfp-tracking-pixel' => new Fieldmanager_Link( array(
 				'label' => __( 'DFP Tracking Pixel URL for Campaign Hub Page', 'sponsorship-manager' ),
@@ -26,7 +38,8 @@ function sponsorship_manager_fm_tax_sponsorship_campaign_sponsorship_campaign_di
 			) ),
 			'tagline' => new Fieldmanager_TextField( array(
 				'label' => __( 'Tagline', 'sponsorship-manager' ),
-				'default_value' => __( 'Sponsored by ', 'sponsorship-manager' ),
+				'default_value' => __( 'Sponsored content by ', 'sponsorship-manager' ),
+				'description' => __( 'Use a phrase clearly indicating that this is a paid advertisement.', 'sponsorship-manager' ),
 			) ),
 			'richdescription' => new Fieldmanager_RichTextArea( __( 'Campaign Description', 'sponsorship-manager' ) ),
 		),
@@ -81,6 +94,7 @@ function sponsorship_manager_fallback_meta_box() {
 		'get' => 'all',
 		'fields' => 'count',
 	) );
+
 	if ( is_wp_error( $campaigns ) || 0 === intval( $campaigns )  ) {
 		foreach ( sponsorship_manager()->get_enabled_post_types() as $post_type ) {
 			remove_action( 'fm_post_' . $post_type, 'sponsorship_manager_fm_sponsorship_info' );
@@ -88,7 +102,7 @@ function sponsorship_manager_fallback_meta_box() {
 		add_action( 'add_meta_boxes', array( sponsorship_manager(), 'fallback_meta_box' ) );
 	}
 }
-sponsorship_manager_fallback_meta_box();
+add_action( 'init', 'sponsorship_manager_fallback_meta_box', 11 );
 
 /**
  * hide term description field since we have a Fieldmanager_RichTextArea instead
