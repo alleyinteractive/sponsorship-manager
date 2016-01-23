@@ -70,9 +70,22 @@ class Sponsorship_Manager_Ad_Slots {
 
 		// Get list of post IDs targeted to each field, filtered by configuration params
 		foreach ( $this->config as $slot_name => $params ) {
-			$this->eligible_posts[ $slot_name ] = $this->get_eligible_posts( $slot_name, $params );
+			$this->eligible_posts[ $slot_name ] = $this->set_eligible_posts( $slot_name, $params );
 		}
 		unset( $params );
+	}
+
+	/**
+	 * Get list of eligible posts
+	 * @param string $slot_name
+	 * @return array List of post IDs
+	 */
+	public function get_eligible_posts( $slot_name ) {
+		if ( ! empty( $this->eligible_posts[ $slot_name ] ) ) {
+			return $this->eligible_posts[ $slot_name ];
+		} else {
+			return array();
+		}
 	}
 
 	/**
@@ -121,7 +134,7 @@ class Sponsorship_Manager_Ad_Slots {
 	 * @param array $params Optional params as WP_Query arguments, may be empty
 	 * @return array List of eligible post IDs
 	 */
-	protected function get_eligible_posts( $slot_name, $params = null ) {
+	protected function set_eligible_posts( $slot_name, $params = null ) {
 
 		// check transient
 		$ids = get_transient( $this->transient_prefix . $slot_name );
@@ -191,6 +204,10 @@ class Sponsorship_Manager_Ad_Slots {
 		$params['posts_per_page'] = $this->max_elibible_posts;
 		$params['ignore_sticky_posts'] = true;
 
+		/**
+		 * @todo Make sure post has at least one term in the sponsorship_campaign taxonomy, otherwise it is not sponsored
+		 */
+
 		return apply_filters( 'sponsorship_manager_ad_slot_params', $params, $slot_name );
 	}
 }
@@ -211,5 +228,5 @@ add_action( 'init', 'sponsorship_manager_setup_ad_slots', 11 );
  * @return none
  */
 function sponsorship_manager_ad_slot( $slot_name ) {
-
+	$eligible_posts = Sponsorship_Manager_Ad_Slots::instance()->get_eligible_posts( $slot_name );
 }
