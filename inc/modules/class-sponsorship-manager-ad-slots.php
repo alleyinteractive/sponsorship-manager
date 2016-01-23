@@ -116,7 +116,6 @@ class Sponsorship_Manager_Ad_Slots {
 	public function set_targeting_postmeta( $values, $field ) {
 		if ( 'sponsorship-info' === $field->name ) {
 			foreach ( $this->config as $slot_name => $value ) {
-				error_log(print_r($values,true));
 				if ( empty( $values[0]['ad_slot'] ) || ! in_array( $slot_name, $values[0]['ad_slot'], true ) ) {
 					delete_post_meta( get_the_ID(), $this->postmeta_key_prefix . $slot_name );
 				} else {
