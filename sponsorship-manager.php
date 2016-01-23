@@ -63,6 +63,9 @@ function sponsorship_manager_setup() {
 	// Load post templating class
 	require_once( SPONSORSHIP_MANAGER_PATH . '/inc/modules/class-sponsorship-manager-post-template.php' );
 
+  // Load ad slots class
+  require_once( SPONSORSHIP_MANAGER_PATH . '/inc/modules/class-sponsorship-manager-ad-slots.php' );
+
 	// Load template tags
 	require_once( SPONSORSHIP_MANAGER_PATH . '/inc/template-tags.php' );
 
