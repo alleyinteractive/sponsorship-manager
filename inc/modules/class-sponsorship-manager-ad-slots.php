@@ -146,6 +146,9 @@ class Sponsorship_Manager_Ad_Slots {
 	 * @return array List of eligible post IDs
 	 */
 	protected function build_query_args( $slot_name, $params ) {
+		/**
+		 * @todo Use hidden taxonomy instead of postmeta for query performance
+		 */
 		$slot_meta = array(
 			'key' => $this->postmeta_key_prefix . $slot_name,
 			'compare' => 'EXISTS',
