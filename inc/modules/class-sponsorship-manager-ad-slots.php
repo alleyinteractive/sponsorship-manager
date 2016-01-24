@@ -18,11 +18,6 @@ class Sponsorship_Manager_Ad_Slots {
 	protected $config;
 
 	/**
-	 * @var array Eligible posts for each slot
-	 */
-	protected $eligible_posts = array();
-
-	/**
 	 * @var string Transient prefix
 	 */
 	protected $transient_prefix = 'sponsorship_manager_eligible_posts_';
@@ -43,11 +38,16 @@ class Sponsorship_Manager_Ad_Slots {
 	protected $postmeta_key_prefix = 'sponsorship_manager_targeted_to_';
 
 	/**
+	 * @var bool Whether to skip transient when retrieving eligible posts
+	 */
+	protected $skip_transient = false;
+
+	/**
 	 * Retrieve Singleton Instance
 	 * @param array $config Ad slot configuration
 	 * @return Sponsorship_Manager_Ad_Slots
 	 */
-	public static function instance( $config ) {
+	public static function instance( $config = false ) {
 		if ( empty( self::$instance ) ) {
 			self::$instance = new self( $config );
 		}
@@ -67,6 +67,9 @@ class Sponsorship_Manager_Ad_Slots {
 		// Add slot selection field to posts
 		add_filter( 'sponsorship_manager_post_fields', array( $this, 'add_slot_targeting_field' ) );
 		add_filter( 'fm_presave_alter_values', array( $this, 'set_targeting_postmeta' ), 10, 2 );
+
+		// Dev stuff
+		$this->skip_transient = apply_filters( 'sponsorship_manager_skip_ad_slot_transients', $this->skip_transient );
 	}
 
 	/**
@@ -113,10 +116,14 @@ class Sponsorship_Manager_Ad_Slots {
 	 * @return array List of post IDs
 	 */
 	public function get_eligible_posts( $slot_name ) {
-		if ( ! isset( $this->eligible_posts[ $slot_name ] ) ) {
-			$this->set_eligible_posts( $slot_name );
+		// check transient
+		if ( ! $this->skip_transient ) {
+			$ids = get_transient( $this->transient_prefix . $slot_name );
+			if ( false !== $ids ) {
+				return $ids;
+			}
 		}
-		return $this->eligible_posts[ $slot_name ];
+		return $this->set_eligible_posts( $slot_name );
 	}
 
 	/**
@@ -126,22 +133,16 @@ class Sponsorship_Manager_Ad_Slots {
 	 * @param array $params Optional params as WP_Query arguments, may be empty
 	 * @return array List of eligible post IDs
 	 */
-	protected function set_eligible_posts( $slot_name, $params = null ) {
-
-		// check transient
-		$ids = get_transient( $this->transient_prefix . $slot_name );
-		if ( false !== $ids ) {
-			return $ids;
-		}
-
+	protected function set_eligible_posts( $slot_name ) {
 		// get posts
-		$args = $this->build_query_args( $slot_name, $params );
-		$ids = new WP_Query( $args );
-		if ( empty( $ids ) || is_wp_error( $ids ) ) {
-			$ids = array();
+		$args = $this->build_query_args( $slot_name );
+		print_r($args);
+		$query = new WP_Query( $args );
+		if ( empty( $query ) || is_wp_error( $query ) ) {
+			$ids = $query->posts;
 		}
-		set_transient( $this->transient_prefix . $slot_name, $ids, ( $this->transient_expiration * 60 ) );
-		$this->eligible_posts[ $slot_name ] = $ids;
+		set_transient( $this->transient_prefix . $slot_name, $query->posts, ( $this->transient_expiration * 60 ) );
+		return $query->posts;
 	}
 
 	/**
@@ -150,7 +151,14 @@ class Sponsorship_Manager_Ad_Slots {
 	 * @param array $params Optional params as WP_Query arguments, may be empty
 	 * @return array List of eligible post IDs
 	 */
-	protected function build_query_args( $slot_name, $params ) {
+	protected function build_query_args( $slot_name ) {
+		/**
+		 * @todo	Change timing of when config is read so that functions like `'post_type' => get_post_type()` are executed
+		 *			in the template instead of 'init'. Will need to have 2 filters, one that's just the names of the slots
+		 *			and other that sets up the config per slot as WP_Query args
+		 */
+
+		$params = ! empty( $this->config[ $slot_name ] ) ? $this->config[ $slot_name ] : array();
 		/**
 		 * @todo Use hidden taxonomy instead of postmeta for query performance
 		 */
@@ -208,11 +216,18 @@ class Sponsorship_Manager_Ad_Slots {
  * If ad slots are configued, presumably by a theme, set things up
  */
 function sponsorship_manager_setup_ad_slots() {
-	if ( $config = apply_filters( 'sponsorship_manager_ad_slots_config', false ) ) {
-		Sponsorship_Manager_Ad_Slots::instance( $config );
-	}
+	Sponsorship_Manager_Ad_Slots::instance( $config = apply_filters( 'sponsorship_manager_ad_slots_config', false ) );
 }
 add_action( 'init', 'sponsorship_manager_setup_ad_slots', 11 );
+
+/**
+ * Template tag to get list of eligible posts
+ * @param string $slot_name Slot name
+ * @return array List of IDs
+ */
+function sponsorship_manager_get_eligible_posts ( $slot_name ) {
+	return Sponsorship_Manager_Ad_Slots::instance()->get_eligible_posts( $slot_name );
+}
 
 /**
  * Template tag to render a specific ad slot
@@ -220,5 +235,6 @@ add_action( 'init', 'sponsorship_manager_setup_ad_slots', 11 );
  * @return none
  */
 function sponsorship_manager_ad_slot( $slot_name ) {
-	$eligible_posts = Sponsorship_Manager_Ad_Slots::instance()->get_eligible_posts( $slot_name );
+	$eligible_posts = sponsorship_manager_get_eligible_posts( $slot_name );
+	echo '<p>Eligible posts: ' . implode( ', ', $eligible_posts ) . '</p>';
 }
