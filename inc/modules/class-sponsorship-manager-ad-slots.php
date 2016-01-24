@@ -83,10 +83,6 @@ class Sponsorship_Manager_Ad_Slots {
 	 * @return array Fieldmanager fields array
 	 */
 	public function add_slot_targeting_field( $fields ) {
-		/**
-		 * @todo only show slots for which post is eligible
-		 */
-
 		$fields['ad_slot'] = new Fieldmanager_Checkboxes( array(
 			'label' => __( 'Sponsorship Manager Ad Slots', 'sponsorship-manager' ),
 			'description' => __( 'Select slots to target this post to', 'sponsorship-manager' ),
