@@ -118,9 +118,10 @@ class Sponsorship_Manager_Ad_Slots {
 	/**
 	 * Get list of eligible posts
 	 * @param string $slot_name
+	 * @param array $args Optional WP_Query args that override initial config
 	 * @return array List of post IDs
 	 */
-	public function get_eligible_posts( $slot_name ) {
+	public function get_eligible_posts( $slot_name, $args = false ) {
 		// check transient
 		if ( ! $this->skip_transient ) {
 			$ids = get_transient( $this->transient_prefix . $slot_name );
@@ -128,7 +129,7 @@ class Sponsorship_Manager_Ad_Slots {
 				return $ids;
 			}
 		}
-		return $this->set_eligible_posts( $slot_name );
+		return $this->set_eligible_posts( $slot_name, $args );
 	}
 
 	/**
@@ -138,10 +139,14 @@ class Sponsorship_Manager_Ad_Slots {
 	 * @param array $params Optional params as WP_Query arguments, may be empty
 	 * @return array List of eligible post IDs
 	 */
-	protected function set_eligible_posts( $slot_name ) {
-		// get posts
-		$args = $this->build_query_args( $slot_name );
-		print_r($args);
+	protected function set_eligible_posts( $slot_name, $args = false ) {
+		// get WP_Query args
+		if ( empty( $args ) ) {
+			$args = $this->build_query_args( $slot_name );
+		} else {
+			$args = array_merge( $this->build_query_args( $slot_name ), $args );
+		}
+
 		$query = new WP_Query( $args );
 		if ( empty( $query ) || is_wp_error( $query ) ) {
 			$ids = $query->posts;
@@ -227,18 +232,20 @@ add_action( 'init', 'sponsorship_manager_setup_ad_slots', 11 );
 /**
  * Template tag to get list of eligible posts
  * @param string $slot_name Slot name
+ * @param array $args Optional WP_Query args that override initial config
  * @return array List of IDs
  */
-function sponsorship_manager_get_eligible_posts ( $slot_name ) {
-	return Sponsorship_Manager_Ad_Slots::instance()->get_eligible_posts( $slot_name );
+function sponsorship_manager_get_eligible_posts ( $slot_name, $args = false ) {
+	return Sponsorship_Manager_Ad_Slots::instance()->get_eligible_posts( $slot_name, $args );
 }
 
 /**
  * Template tag to render a specific ad slot
  * @param string $slot_name Name of slot to render
+ * @param array $args Optional WP_Query args that override initial config
  * @return none
  */
-function sponsorship_manager_ad_slot( $slot_name ) {
-	$eligible_posts = sponsorship_manager_get_eligible_posts( $slot_name );
+function sponsorship_manager_ad_slot( $slot_name, $args = false ) {
+	$eligible_posts = sponsorship_manager_get_eligible_posts( $slot_name, $args );
 	echo '<p>Eligible posts: ' . implode( ', ', $eligible_posts ) . '</p>';
 }
