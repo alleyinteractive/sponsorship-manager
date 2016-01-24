@@ -67,25 +67,6 @@ class Sponsorship_Manager_Ad_Slots {
 		// Add slot selection field to posts
 		add_filter( 'sponsorship_manager_post_fields', array( $this, 'add_slot_targeting_field' ) );
 		add_filter( 'fm_presave_alter_values', array( $this, 'set_targeting_postmeta' ), 10, 2 );
-
-		// Get list of post IDs targeted to each field, filtered by configuration params
-		foreach ( $this->config as $slot_name => $params ) {
-			$this->eligible_posts[ $slot_name ] = $this->set_eligible_posts( $slot_name, $params );
-		}
-		unset( $params );
-	}
-
-	/**
-	 * Get list of eligible posts
-	 * @param string $slot_name
-	 * @return array List of post IDs
-	 */
-	public function get_eligible_posts( $slot_name ) {
-		if ( ! empty( $this->eligible_posts[ $slot_name ] ) ) {
-			return $this->eligible_posts[ $slot_name ];
-		} else {
-			return array();
-		}
 	}
 
 	/**
@@ -127,7 +108,19 @@ class Sponsorship_Manager_Ad_Slots {
 	}
 
 	/**
-	 * Get list of eligible post IDs for an ad slot.
+	 * Get list of eligible posts
+	 * @param string $slot_name
+	 * @return array List of post IDs
+	 */
+	public function get_eligible_posts( $slot_name ) {
+		if ( ! isset( $this->eligible_posts[ $slot_name ] ) ) {
+			$this->set_eligible_posts( $slot_name );
+		}
+		return $this->eligible_posts[ $slot_name ];
+	}
+
+	/**
+	 * Sets list of eligible post IDs for an ad slot.
 	 * Posts are eligible when they are targeted to the ad slot and match the params
 	 * @param string $slot_name Slot name
 	 * @param array $params Optional params as WP_Query arguments, may be empty
@@ -142,13 +135,13 @@ class Sponsorship_Manager_Ad_Slots {
 		}
 
 		// get posts
-		$params = $this->build_query_args( $slot_name, $params );
-		$ids = new WP_Query( $params );
+		$args = $this->build_query_args( $slot_name, $params );
+		$ids = new WP_Query( $args );
 		if ( empty( $ids ) || is_wp_error( $ids ) ) {
 			$ids = array();
 		}
 		set_transient( $this->transient_prefix . $slot_name, $ids, ( $this->transient_expiration * 60 ) );
-		return $ids;
+		$this->eligible_posts[ $slot_name ] = $ids;
 	}
 
 	/**
