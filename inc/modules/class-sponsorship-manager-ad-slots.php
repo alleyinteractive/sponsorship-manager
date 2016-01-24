@@ -13,9 +13,9 @@ class Sponsorship_Manager_Ad_Slots {
 	protected static $instance;
 
 	/**
-	 * @var array Received ad slot configuration
+	 * @var array Ad slots list defined with 'sponsorship_manager_ad_slots_list' filter
 	 */
-	protected $config;
+	protected $list;
 
 	/**
 	 * @var string Transient prefix
@@ -44,25 +44,25 @@ class Sponsorship_Manager_Ad_Slots {
 
 	/**
 	 * Retrieve Singleton Instance
-	 * @param array $config Ad slot configuration
+	 * @param array $list Ad slots list
 	 * @return Sponsorship_Manager_Ad_Slots
 	 */
-	public static function instance( $config = false ) {
+	public static function instance( $list = false ) {
 		if ( empty( self::$instance ) ) {
-			self::$instance = new self( $config );
+			self::$instance = new self( $list );
 		}
 		return self::$instance;
 	}
 
 	/**
 	 * Protected Contructor
-	 * @param array $config Ad slot configuration
+	 * @param array $list Ad slots list
 	 */
-	protected function __construct( $config ) {
-		if ( empty( $config ) ) {
+	protected function __construct( $list ) {
+		if ( empty( $list ) ) {
 			return;
 		}
-		$this->config = $config;
+		$this->list = $list;
 
 		// Add slot selection field to posts
 		add_filter( 'sponsorship_manager_post_fields', array( $this, 'add_slot_targeting_field' ) );
@@ -85,7 +85,7 @@ class Sponsorship_Manager_Ad_Slots {
 		$fields['ad_slot'] = new Fieldmanager_Checkboxes( array(
 			'label' => __( 'Sponsorship Manager Ad Slots', 'sponsorship-manager' ),
 			'description' => __( 'Select slots to target this post to', 'sponsorship-manager' ),
-			'options' => array_keys( $this->config ),
+			'options' => $this->list,
 			'multiple' => true,
 		) );
 		return $fields;
@@ -99,7 +99,7 @@ class Sponsorship_Manager_Ad_Slots {
 	 */
 	public function set_targeting_postmeta( $values, $field ) {
 		if ( 'sponsorship-info' === $field->name ) {
-			foreach ( $this->config as $slot_name => $value ) {
+			foreach ( $this->list as $slot_name ) {
 				if ( empty( $values[0]['ad_slot'] ) || ! in_array( $slot_name, $values[0]['ad_slot'], true ) ) {
 					delete_post_meta( get_the_ID(), $this->postmeta_key_prefix . $slot_name );
 				} else {
@@ -213,10 +213,10 @@ class Sponsorship_Manager_Ad_Slots {
 }
 
 /**
- * If ad slots are configued, presumably by a theme, set things up
+ * If ad slots are defined, presumably by a theme, set things up
  */
 function sponsorship_manager_setup_ad_slots() {
-	Sponsorship_Manager_Ad_Slots::instance( $config = apply_filters( 'sponsorship_manager_ad_slots_config', false ) );
+	Sponsorship_Manager_Ad_Slots::instance( $list = apply_filters( 'sponsorship_manager_ad_slots_list', false ) );
 }
 add_action( 'init', 'sponsorship_manager_setup_ad_slots', 11 );
 
