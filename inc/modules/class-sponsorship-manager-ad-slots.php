@@ -18,6 +18,11 @@ class Sponsorship_Manager_Ad_Slots {
 	protected $list;
 
 	/**
+	 * @var array Query args config for ad slots
+	 */
+	protected $query_config = null;
+
+	/**
 	 * @var string Transient prefix
 	 */
 	protected $transient_prefix = 'sponsorship_manager_eligible_posts_';
@@ -152,13 +157,12 @@ class Sponsorship_Manager_Ad_Slots {
 	 * @return array List of eligible post IDs
 	 */
 	protected function build_query_args( $slot_name ) {
-		/**
-		 * @todo	Change timing of when config is read so that functions like `'post_type' => get_post_type()` are executed
-		 *			in the template instead of 'init'. Will need to have 2 filters, one that's just the names of the slots
-		 *			and other that sets up the config per slot as WP_Query args
-		 */
 
-		$params = ! empty( $this->config[ $slot_name ] ) ? $this->config[ $slot_name ] : array();
+		if ( null === $this->query_config ) {
+			$this->query_config = apply_filters( 'sponsorship_manager_ad_slots_query_config', array() );
+		}
+
+		$params = ! empty( $this->query_config[ $slot_name ] ) ? $this->query_config[ $slot_name ] : array();
 		/**
 		 * @todo Use hidden taxonomy instead of postmeta for query performance
 		 */
