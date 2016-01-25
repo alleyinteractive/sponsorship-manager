@@ -215,6 +215,39 @@ class Sponsorship_Manager_Ad_Slots {
 
 		return apply_filters( 'sponsorship_manager_ad_slot_params', $params, $slot_name );
 	}
+
+	/**
+	 * Template tag to render a specific ad slot
+	 * @param string $slot_name Name of slot to render
+	 * @param array $args Optional WP_Query args that override initial config
+	 * @return string HTML/JS for ad slot
+	 */
+	public function render_ad_slot( $slot_name, $args ) {
+		$posts = $this->get_eligible_posts( $slot_name, $args );
+		$posts = apply_filters( 'sponsorship_manager_slot_posts', $posts, $slot_name, $args );
+		if ( empty( $posts ) ) {
+			return '';
+		}
+		// build markup
+		$slot_markup[] = '<script id="sponsorship-ad-slot-' . esc_attr( $slot_name ) . '">';
+		$slot_markup[] = "\t" . '(function( $ ) {';
+		$slot_markup[] = "\t\t" . 'var eligibleIds = ' . json_encode( $posts ) . ';';
+		$slot_markup[] = "\t\t" . 'var idx = Math.floor( Math.random() * eligibleIds.length );';
+		$slot_markup[] = "\t\t" . 'var $target = $("#sponsorship-ad-slot-' . esc_attr( $slot_name ) . '").next(".sponsorship-ad-slot:first");';
+		$slot_markup[] = "\t\t" . '$.post( "' . esc_url( home_url( '/sponsorship-manager/' . $slot_name . '/' ) ) . '" + eligibleIds[ idx ] + "/", function( res ) {';
+		$slot_markup[] = "\t\t\t" . 'if ( res.success ) {';
+		$slot_markup[] = "\t\t\t\t" . '$target.html( res.content );';
+		$slot_markup[] = "\t\t\t" . '}';
+		$slot_markup[] = "\t\t" . '} ).fail( function() {';
+		$slot_markup[] = "\t\t\t" . 'console.log( "Request to ' . esc_url( home_url( '/sponsorship-manager/' . $slot_name . '/' ) ) . '" + eligibleIds[ idx ] + "/ failed." );';
+		$slot_markup[] = "\t\t" . '} );';
+		$slot_markup[] = "\t" . '} )( jQuery );';
+		$slot_markup[] = '</script>';
+		$slot_markup[] = '<div class="sponsorship-ad-slot slot-' . esc_attr( $slot_name ) . '"></div>';
+
+		return implode( "\n", $slot_markup );
+
+	}
 }
 
 /**
@@ -242,6 +275,5 @@ function sponsorship_manager_get_eligible_posts ( $slot_name, $args = false ) {
  * @return none
  */
 function sponsorship_manager_ad_slot( $slot_name, $args = false ) {
-	$eligible_posts = sponsorship_manager_get_eligible_posts( $slot_name, $args );
-	echo '<p>Eligible posts: ' . implode( ', ', $eligible_posts ) . '</p>';
+	echo Sponsorship_Manager_Ad_Slots::instance()->render_ad_slot( $slot_name, $args );
 }
