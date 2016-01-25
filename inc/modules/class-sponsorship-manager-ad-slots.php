@@ -48,9 +48,19 @@ class Sponsorship_Manager_Ad_Slots {
 	protected $query_var = 'sponsorship_ad_slot';
 
 	/**
+	 * @var string Shortcode name
+	 */
+	protected $shortcode_name = 'sponsorship-ad-slot';
+
+	/**
 	 * @var bool Whether to skip transient when retrieving eligible posts
 	 */
 	protected $skip_transient = false;
+
+	/**
+	 * @var array Slots rendered on this request
+	 */
+	protected $slots_rendered = array();
 
 	/**
 	 * Retrieve Singleton Instance
@@ -81,10 +91,22 @@ class Sponsorship_Manager_Ad_Slots {
 		add_filter( 'sponsorship_manager_post_fields', array( $this, 'add_slot_targeting_field' ) );
 		add_filter( 'fm_presave_alter_values', array( $this, 'set_targeting_postmeta' ), 10, 2 );
 
+		// slot shortcode
+		add_shortcode( $this->shortcode_name, array( $this, 'slot_shortcode' ) );
+
 		// handle AJAX request for ad slot
 		add_rewrite_tag('%sponsorship_ad_slot%', '([A-Za-z0-9\-_]+)');
 		add_rewrite_rule( '^sponsorship-manager/([A-Za-z0-9\-_]+)/(\d+)/?', 'index.php?sponsorship_ad_slot=$matches[1]&p=$matches[2]', 'top' );
 		add_action( 'parse_query', array( $this, 'do_api_request' ) );
+	}
+
+	/**
+	 * Test if ad slot is active
+	 * @param string $slot_name Slot name
+	 * @return bool
+	 */
+	public function slot_is_active( $slot_name ) {
+		return in_array( $slot_name, $this->list, true );
 	}
 
 	/**
@@ -128,6 +150,10 @@ class Sponsorship_Manager_Ad_Slots {
 	 * @return array List of post IDs
 	 */
 	public function get_eligible_posts( $slot_name, $args = false ) {
+		if ( ! $this->slot_is_active( $slot_name ) ) {
+			return array();
+		}
+
 		// check transient
 		if ( ! $this->skip_transient ) {
 			$ids = get_transient( $this->transient_prefix . $slot_name );
@@ -155,9 +181,11 @@ class Sponsorship_Manager_Ad_Slots {
 
 		$query = new WP_Query( $args );
 		if ( empty( $query ) || is_wp_error( $query ) ) {
+			$ids = array();
+		} else {
 			$ids = $query->posts;
 		}
-		set_transient( $this->transient_prefix . $slot_name, $query->posts, ( $this->transient_expiration * 60 ) );
+		set_transient( $this->transient_prefix . $slot_name, $ids, ( $this->transient_expiration * 60 ) );
 		return $query->posts;
 	}
 
@@ -233,29 +261,45 @@ class Sponsorship_Manager_Ad_Slots {
 	 * @return string HTML/JS for ad slot
 	 */
 	public function render_ad_slot( $slot_name, $args ) {
+		if ( ! $this->slot_is_active( $slot_name ) ) {
+			return '';
+		}
+
 		$posts = $this->get_eligible_posts( $slot_name, $args );
 		$posts = apply_filters( 'sponsorship_manager_slot_posts', $posts, $slot_name, $args );
 		if ( empty( $posts ) ) {
 			return '';
 		}
+
+		if ( ! isset( $this->slots_rendered[ $slot_name ] ) ) {
+			$this->slots_rendered[ $slot_name ] = 0;
+		}
+
 		// build markup
-		$slot_markup[] = '<script id="sponsorship-ad-slot-' . esc_attr( $slot_name ) . '">';
+		$container_id = 'sponsorship-ad-slot-' . esc_attr( $slot_name ) . '-container-'. esc_attr( $this->slots_rendered[ $slot_name ] );
+		$slot_markup[] = '<div id="' . esc_attr( $container_id ) . '" class="sponsorship-ad-slot slot-' . esc_attr( $slot_name ) . '"></div>';
+		$slot_markup[] = '<script>';
 		$slot_markup[] = "\t" . '(function( $ ) {';
 		$slot_markup[] = "\t\t" . 'var eligibleIds = ' . json_encode( $posts ) . ';';
 		$slot_markup[] = "\t\t" . 'var idx = Math.floor( Math.random() * eligibleIds.length );';
-		$slot_markup[] = "\t\t" . 'var $target = $("#sponsorship-ad-slot-' . esc_attr( $slot_name ) . '").next(".sponsorship-ad-slot:first");';
+		$slot_markup[] = "\t\t" . 'var $target = $("#' . esc_js( $container_id ) . '");';
+		$slot_markup[] = "\t\t" . 'if ( ! $target.length ) {';
+		$slot_markup[] = "\t\t\t" . 'console.log("#' . esc_js( $container_id ) . ' not found");';
+		$slot_markup[] = "\t\t\t" . 'return;';
+		$slot_markup[] = "\t\t" . '}';
 		$slot_markup[] = "\t\t" . '$.post( "' . esc_url( home_url( '/sponsorship-manager/' . $slot_name . '/' ) ) . '" + eligibleIds[ idx ] + "/", function( res ) {';
 		$slot_markup[] = "\t\t\t" . 'if ( res.success ) {';
 		$slot_markup[] = "\t\t\t\t" . '$target.html( res.data.content );';
 		$slot_markup[] = "\t\t\t" . '} else {';
-		$slot_markup[] = "\t\t\t\t" . 'console.log( res.data.message || res.data );';
+		$slot_markup[] = "\t\t\t\t" . 'console.log( "' . __( 'Sponsorship Manager AJAX response', 'sponsorship-manager' ). '", res );';
 		$slot_markup[] = "\t\t\t" . '}';
 		$slot_markup[] = "\t\t" . '} ).fail( function() {';
 		$slot_markup[] = "\t\t\t" . 'console.log( "Request to ' . esc_url( home_url( '/sponsorship-manager/' . $slot_name . '/' ) ) . '" + eligibleIds[ idx ] + "/ failed." );';
 		$slot_markup[] = "\t\t" . '} );';
 		$slot_markup[] = "\t" . '} )( jQuery );';
 		$slot_markup[] = '</script>';
-		$slot_markup[] = '<div class="sponsorship-ad-slot slot-' . esc_attr( $slot_name ) . '"></div>';
+
+		$this->slots_rendered[ $slot_name ]++;
 
 		return implode( "\n", $slot_markup );
 	}
@@ -294,7 +338,45 @@ class Sponsorship_Manager_Ad_Slots {
 		} else {
 			wp_send_json( $template_response );
 		}
+	}
 
+	/**
+	 * Handle ad slot shortcode
+	 * @param array $atts Shortcode attributes
+	 *			string		'slot' Required slot name
+	 *			int|string	'campaign' Term ID or slug for sponsorship_campaign taxonomy; may be a parent campaign
+	 * @return string HTML output for ad slot
+	 */
+	function slot_shortcode( $atts ) {
+
+		extract( shortcode_atts(
+			array(
+				'slot' => '',
+				'campaign' => '',
+				'post' => '',
+			), $atts, $this->shortcode_name )
+		);
+
+		// valid slot is required
+		if ( empty( $slot ) || ! $this->slot_is_active( $slot ) ) {
+			return '';
+		}
+		// build optional query args with campaign or post atts
+		$args = array();
+		if ( ! empty( $campaign ) ) {
+			$args['tax_query'][] = array(
+				'taxonomy' => 'sponsorship_campaign',
+				'field' => is_numeric( $campaign ) ? 'term_id' : 'slug',
+				'terms' => is_numeric( $campaign ) ? intval( $campaign ) : $campaign,
+				'include_children' => true,
+			);
+		}
+
+		if ( ! empty( $post ) ) {
+			$args['p'] = intval( $post );
+		}
+
+		return $this->render_ad_slot( $slot, $args );
 	}
 }
 
