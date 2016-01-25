@@ -43,6 +43,11 @@ class Sponsorship_Manager_Ad_Slots {
 	protected $postmeta_key_prefix = 'sponsorship_manager_targeted_to_';
 
 	/**
+	 * @var string Slot name WP_Query var
+	 */
+	protected $query_var = 'sponsorship_ad_slot';
+
+	/**
 	 * @var bool Whether to skip transient when retrieving eligible posts
 	 */
 	protected $skip_transient = false;
@@ -69,12 +74,17 @@ class Sponsorship_Manager_Ad_Slots {
 		}
 		$this->list = $list;
 
+		// Dev stuff
+		$this->skip_transient = apply_filters( 'sponsorship_manager_skip_ad_slot_transients', $this->skip_transient );
+
 		// Add slot selection field to posts
 		add_filter( 'sponsorship_manager_post_fields', array( $this, 'add_slot_targeting_field' ) );
 		add_filter( 'fm_presave_alter_values', array( $this, 'set_targeting_postmeta' ), 10, 2 );
 
-		// Dev stuff
-		$this->skip_transient = apply_filters( 'sponsorship_manager_skip_ad_slot_transients', $this->skip_transient );
+		// handle AJAX request for ad slot
+		add_rewrite_tag('%sponsorship_ad_slot%', '([A-Za-z0-9\-_]+)');
+		add_rewrite_rule( '^sponsorship-manager/([A-Za-z0-9\-_]+)/(\d+)/?', 'index.php?sponsorship_ad_slot=$matches[1]&p=$matches[2]', 'top' );
+		add_action( 'parse_query', array( $this, 'do_api_request' ) );
 	}
 
 	/**
@@ -236,7 +246,9 @@ class Sponsorship_Manager_Ad_Slots {
 		$slot_markup[] = "\t\t" . 'var $target = $("#sponsorship-ad-slot-' . esc_attr( $slot_name ) . '").next(".sponsorship-ad-slot:first");';
 		$slot_markup[] = "\t\t" . '$.post( "' . esc_url( home_url( '/sponsorship-manager/' . $slot_name . '/' ) ) . '" + eligibleIds[ idx ] + "/", function( res ) {';
 		$slot_markup[] = "\t\t\t" . 'if ( res.success ) {';
-		$slot_markup[] = "\t\t\t\t" . '$target.html( res.content );';
+		$slot_markup[] = "\t\t\t\t" . '$target.html( res.data.content );';
+		$slot_markup[] = "\t\t\t" . '} else {';
+		$slot_markup[] = "\t\t\t\t" . 'console.log( res.data.message || res.data );';
 		$slot_markup[] = "\t\t\t" . '}';
 		$slot_markup[] = "\t\t" . '} ).fail( function() {';
 		$slot_markup[] = "\t\t\t" . 'console.log( "Request to ' . esc_url( home_url( '/sponsorship-manager/' . $slot_name . '/' ) ) . '" + eligibleIds[ idx ] + "/ failed." );';
@@ -246,6 +258,42 @@ class Sponsorship_Manager_Ad_Slots {
 		$slot_markup[] = '<div class="sponsorship-ad-slot slot-' . esc_attr( $slot_name ) . '"></div>';
 
 		return implode( "\n", $slot_markup );
+	}
+
+	/**
+	 * Handle API request for Slot + ID and reply with JSON
+	 * @param WP_Query $query Passed by reference
+	 * @return none
+	 */
+	public function do_api_request( $query ) {
+		// must be main query and our API query var
+		if ( ! $query->is_main_query() || empty( $slot_name = $query->get( 'sponsorship_ad_slot') ) ) {
+			return;
+		}
+
+		// post must exist and be targeted to the slot
+		$post = get_post( $query->get( 'p' ) );
+		if ( empty( $post ) ) {
+			wp_send_json_error( array( 'message' => sprintf( __( 'Post ID `%s` not found', 'sponsorship-manager' ), $query->get( 'p' ) ) ) );
+		}
+		$targeted = get_post_meta( $post->ID, $this->postmeta_key_prefix . $slot_name, true );
+		if ( empty( $targeted ) ) {
+			wp_send_json_error( array( 'message' => sprintf( __( 'Post ID `%s` not targeted to slot %s', 'sponsorship-manager' ), $post->ID, $slot_name ) ) );
+		}
+
+		// slot must have template filters applied
+		if ( ! has_filter( 'sponsorship_manager_slot_template_' . $slot_name ) ) {
+			wp_send_json_error( array( 'message' => sprintf( __( 'No template filters added to sponsorship_manager_slot_template_%s', 'sponsorship-manager' ), $slot_name ) ) );
+		}
+
+		$template_response = apply_filters( 'sponsorship_manager_slot_template_' . $slot_name, '', $post );
+		if ( empty( $template_response ) ) {
+			wp_send_json_error( array( 'message' => sprintf( __( 'Empty response for post ID `%s` and slot %s', 'sponsorship-manager' ), $post->ID, $slot_name ) ) );
+		} elseif ( is_string( $template_response ) ) {
+			wp_send_json_success( array( 'content' => wp_kses_post( $template_response ) ) );
+		} else {
+			wp_send_json( $template_response );
+		}
 
 	}
 }
