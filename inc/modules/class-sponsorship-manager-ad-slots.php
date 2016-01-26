@@ -58,9 +58,20 @@ class Sponsorship_Manager_Ad_Slots {
 	protected $skip_transient = false;
 
 	/**
+	 * @var bool In-browser dev mode, also disables transient if true
+	 */
+	protected $dev_mode = false;
+
+	/**
+	 * @var string Query string param to use dev mode
+	 */
+	protected $dev_query_param = 'smconsole';
+
+	/**
 	 * @var array Slots rendered on this request
 	 */
 	protected $slots_rendered = array();
+
 
 	/**
 	 * Retrieve Singleton Instance
@@ -86,6 +97,10 @@ class Sponsorship_Manager_Ad_Slots {
 
 		// Dev stuff
 		$this->skip_transient = apply_filters( 'sponsorship_manager_skip_ad_slot_transients', $this->skip_transient );
+		if ( ! empty( $_SERVER['QUERY_STRING'] ) && 1 === preg_match( '/(?:^|&)' . $this->dev_query_param . '(?:$|=|&)/', $_SERVER['QUERY_STRING'] ) ) {
+			$this->dev_mode = true;
+			$this->skip_transient = true;
+		}
 
 		// Add slot selection field to posts
 		add_filter( 'sponsorship_manager_post_fields', array( $this, 'add_slot_targeting_field' ) );
@@ -280,21 +295,46 @@ class Sponsorship_Manager_Ad_Slots {
 		$slot_markup[] = '<div id="' . esc_attr( $container_id ) . '" class="sponsorship-ad-slot slot-' . esc_attr( $slot_name ) . '"></div>';
 		$slot_markup[] = '<script>';
 		$slot_markup[] = "\t" . '(function( $ ) {';
-		$slot_markup[] = "\t\t" . 'var eligibleIds = ' . json_encode( $posts ) . ';';
+		$slot_markup[] = "\t\t" . 'var eligibleIds = ' . wp_json_encode( $posts ) . ';';
 		$slot_markup[] = "\t\t" . 'var idx = Math.floor( Math.random() * eligibleIds.length );';
-		$slot_markup[] = "\t\t" . 'var $target = $("#' . esc_js( $container_id ) . '");';
+		$slot_markup[] = "\t\t" . 'var $target = $(' . wp_json_encode( '#' . $container_id ) . ');';
 		$slot_markup[] = "\t\t" . 'if ( ! $target.length ) {';
-		$slot_markup[] = "\t\t\t" . 'console.log("#' . esc_js( $container_id ) . ' not found");';
+
+		if ( $this->dev_mode ) {
+			$slot_markup[] = "\t\t\t" . 'console.log(' . wp_json_encode( '#' . $container_id . ' not found' ) .');';
+		}
+
 		$slot_markup[] = "\t\t\t" . 'return;';
 		$slot_markup[] = "\t\t" . '}';
-		$slot_markup[] = "\t\t" . '$.post( "' . esc_url( home_url( '/sponsorship-manager/' . $slot_name . '/' ) ) . '" + eligibleIds[ idx ] + "/", function( res ) {';
+		$slot_markup[] = "\t\t" . 'var requestData = {';
+		$slot_markup[] = "\t\t\t" . 'url: '		. wp_json_encode( home_url( '/sponsorship-manager/' . $slot_name . '/' ) ). ' + eligibleIds[ idx ] + "/"';
+		if ( $this->dev_mode ) {
+			// add a comma after requestData.url
+			$slot_markup_last = array_pop( $slot_markup );
+			$slot_markup_last .= ',';
+			$slot_markup[] = $slot_markup_last;
+			$slot_markup[] = "\t\t\t" . 'slot: '	. wp_json_encode( $slot_name ) . ',';
+			$slot_markup[] = "\t\t\t" . 'render: '	. wp_json_encode( $this->slots_rendered[ $slot_name ] ) . ',';
+			$slot_markup[] = "\t\t\t" . 'targetId: '. wp_json_encode( $container_id );
+		}
+		$slot_markup[] = "\t\t" . '};';
+		$slot_markup[] = "\t\t" . '$.get( requestData.url, function( res ) {';
 		$slot_markup[] = "\t\t\t" . 'if ( res.success ) {';
 		$slot_markup[] = "\t\t\t\t" . '$target.html( res.data.content );';
-		$slot_markup[] = "\t\t\t" . '} else {';
-		$slot_markup[] = "\t\t\t\t" . 'console.log( "' . __( 'Sponsorship Manager AJAX response', 'sponsorship-manager' ). '", res );';
+
+		if ( $this->dev_mode ) {
+			$slot_markup[] = "\t\t\t\t" . 'console.log( "' . __( 'Sponsorship Manager AJAX success', 'sponsorship-manager' ). '", requestData, res );';
+			$slot_markup[] = "\t\t\t" . '} else {';
+			$slot_markup[] = "\t\t\t\t" . 'console.log( "' . __( 'Sponsorship Manager AJAX error', 'sponsorship-manager' ). '", requestData, res );';
+		}
+
 		$slot_markup[] = "\t\t\t" . '}';
-		$slot_markup[] = "\t\t" . '} ).fail( function() {';
-		$slot_markup[] = "\t\t\t" . 'console.log( "Request to ' . esc_url( home_url( '/sponsorship-manager/' . $slot_name . '/' ) ) . '" + eligibleIds[ idx ] + "/ failed." );';
+
+		if ( $this->dev_mode ) {
+			$slot_markup[] = "\t\t" . '} ).fail( function() {';
+			$slot_markup[] = "\t\t\t" . 'console.log( "' . __( 'Sponsorship Manager AJAX failed', 'sponsorship-manager' ). '", requestData );';
+		}
+
 		$slot_markup[] = "\t\t" . '} );';
 		$slot_markup[] = "\t" . '} )( jQuery );';
 		$slot_markup[] = '</script>';
