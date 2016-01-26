@@ -307,10 +307,16 @@ class Sponsorship_Manager_Ad_Slots {
 		$slot_markup[] = "\t\t\t" . 'return;';
 		$slot_markup[] = "\t\t" . '}';
 		$slot_markup[] = "\t\t" . 'var requestData = {';
-		$slot_markup[] = "\t\t\t" . 'url: '		. wp_json_encode( home_url( '/sponsorship-manager/' . $slot_name . '/' ) ). ' + eligibleIds[ idx ] + "/",';
-		$slot_markup[] = "\t\t\t" . 'slot: '	. wp_json_encode( $slot_name ) . ',';
-		$slot_markup[] = "\t\t\t" . 'render: '	. wp_json_encode( $this->slots_rendered[ $slot_name ] ) . ',';
-		$slot_markup[] = "\t\t\t" . 'targetId: '. wp_json_encode( $container_id );
+		$slot_markup[] = "\t\t\t" . 'url: '		. wp_json_encode( home_url( '/sponsorship-manager/' . $slot_name . '/' ) ). ' + eligibleIds[ idx ] + "/"';
+		if ( $this->dev_mode ) {
+			// add a comma after requestData.url
+			$slot_markup_last = array_pop( $slot_markup );
+			$slot_markup_last .= ',';
+			$slot_markup[] = $slot_markup_last;
+			$slot_markup[] = "\t\t\t" . 'slot: '	. wp_json_encode( $slot_name ) . ',';
+			$slot_markup[] = "\t\t\t" . 'render: '	. wp_json_encode( $this->slots_rendered[ $slot_name ] ) . ',';
+			$slot_markup[] = "\t\t\t" . 'targetId: '. wp_json_encode( $container_id );
+		}
 		$slot_markup[] = "\t\t" . '};';
 		$slot_markup[] = "\t\t" . '$.get( requestData.url, function( res ) {';
 		$slot_markup[] = "\t\t\t" . 'if ( res.success ) {';
