@@ -370,7 +370,7 @@ class Sponsorship_Manager_Ad_Slots {
 			wp_send_json_error( array( 'message' => sprintf( __( 'No template filters added to sponsorship_manager_slot_template_%s', 'sponsorship-manager' ), $slot_name ) ) );
 		}
 
-		$template_response = apply_filters( 'sponsorship_manager_slot_template_' . $slot_name, '', $post );
+		$template_response = apply_filters( 'sponsorship_manager_slot_template_' . $slot_name, '', $slot_name, $post );
 		if ( empty( $template_response ) ) {
 			wp_send_json_error( array( 'message' => sprintf( __( 'Empty response for post ID `%s` and slot %s', 'sponsorship-manager' ), $post->ID, $slot_name ) ) );
 		} elseif ( is_string( $template_response ) ) {

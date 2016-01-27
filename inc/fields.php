@@ -50,7 +50,7 @@ add_action( 'fm_term_sponsorship_campaign', 'sponsorship_manager_fm_tax_sponsors
 /**
  * `sponsorship-info` Fieldmanager fields.
  */
-function sponsorship_manager_fm_sponsorship_info() {
+function sponsorship_manager_fm_sponsorship_info( $post_type ) {
 	$fm = new Fieldmanager_Group( array(
 		'name' => 'sponsorship-info',
 		'children' => apply_filters( 'sponsorship_manager_post_fields', array(
@@ -70,12 +70,12 @@ function sponsorship_manager_fm_sponsorship_info() {
 				'description' => __( "Use this field to override default DFP pixel URL. Include 'c' parameter; cache busting will be handled on output.", 'sponsorship-manager' ),
 			) ),
 			'archiveless' => new Fieldmanager_Checkbox( __( 'Hide from standard frontend queries (Recent Posts, author archive, etc.) and RSS feeds', 'sponsorship-manager' ) ),
-		) ),
+		), $post_type ),
 	) );
 	$fm->add_meta_box( __( 'Sponsorship Campaign', 'sponsorship-manager' ), sponsorship_manager()->get_enabled_post_types() );
 }
 foreach ( sponsorship_manager()->get_enabled_post_types() as $post_type ) {
-	add_action( 'fm_post_' . $post_type, 'sponsorship_manager_fm_sponsorship_info' );
+	add_action( 'fm_post_' . $post_type, 'sponsorship_manager_fm_sponsorship_info', 10, 1 );
 }
 
 /**
