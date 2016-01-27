@@ -429,6 +429,16 @@ function sponsorship_manager_setup_ad_slots() {
 add_action( 'init', 'sponsorship_manager_setup_ad_slots', 11 );
 
 /**
+ * Template tag to check if slot has eligible posts
+ * @param string $slot_name Slot name
+ * @param array $args Optional WP_Query args that override initial config
+ * @return array List of IDs
+ */
+function sponsorship_manager_has_eligible_posts ( $slot_name, $args = false ) {
+	return ! empty( Sponsorship_Manager_Ad_Slots::instance()->get_eligible_posts( $slot_name, $args ) );
+}
+
+/**
  * Template tag to get list of eligible posts
  * @param string $slot_name Slot name
  * @param array $args Optional WP_Query args that override initial config
