@@ -69,7 +69,13 @@ function sponsorship_manager_setup() {
 	// Load template tags
 	require_once( SPONSORSHIP_MANAGER_PATH . '/inc/template-tags.php' );
 
-	// Load Fieldmanager Fields
-	require_once( SPONSORSHIP_MANAGER_PATH . '/functions.php' );
+  // Fieldmanager Fields
+  require_once( SPONSORSHIP_MANAGER_PATH . '/inc/fields.php' );
+
+  // Taxonomy Base Class
+  require_once( SPONSORSHIP_MANAGER_PATH . '/inc/taxonomies/class-sponsorship-manager-taxonomy.php' );
+
+  // Sponsorship Campaigns Taxonomy (tax:sponsorship_campaign)
+  require_once( SPONSORSHIP_MANAGER_PATH . '/inc/taxonomies/class-sponsorship-manager-taxonomy-sponsorship-campaign.php' );
 }
 add_action( 'after_setup_theme', 'sponsorship_manager_setup', 99 );
