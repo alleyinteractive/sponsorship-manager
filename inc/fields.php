@@ -44,7 +44,7 @@ function sponsorship_manager_fm_tax_sponsorship_campaign_sponsorship_campaign_di
 				'label' => __( 'Campaign Description', 'sponsorship-manager' ),
 				'description' => __( 'Copy about the campaign or sponsor', 'sponsorship-manager' ),
 			) ),
-			'disclaimer' => new Fieldmanager_TextField( array(
+			'disclaimer' => new Fieldmanager_TextArea( array(
 				'label' => __( 'Disclaimer', 'sponsorship-manager' ),
 				'description' => __( 'Copy to answer the question &quot;What is sponsor content?&quot;', 'sponsorship-manager' ),
 			) ),
