@@ -40,7 +40,14 @@ function sponsorship_manager_fm_tax_sponsorship_campaign_sponsorship_campaign_di
 				'default_value' => __( 'Sponsor content by ', 'sponsorship-manager' ),
 				'description' => __( 'Use a phrase clearly indicating that this is a paid advertisement.', 'sponsorship-manager' ),
 			) ),
-			'richdescription' => new Fieldmanager_RichTextArea( __( 'Campaign Description', 'sponsorship-manager' ) ),
+			'richdescription' => new Fieldmanager_RichTextArea( array(
+				'label' => __( 'Campaign Description', 'sponsorship-manager' ),
+				'description' => __( 'Copy about the campaign or sponsor', 'sponsorship-manager' ),
+			) ),
+			'disclaimer' => new Fieldmanager_TextField( array(
+				'label' => __( 'Disclaimer', 'sponsorship-manager' ),
+				'description' => __( 'Copy to answer the question &quot;What is sponsor content?&quot;', 'sponsorship-manager' ),
+			) ),
 		) ),
 	) );
 	$fm->add_term_form( __( 'Display Fields', 'sponsorship-manager' ), array( 'sponsorship_campaign' ) );
