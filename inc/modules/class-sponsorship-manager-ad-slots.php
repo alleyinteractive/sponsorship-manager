@@ -178,25 +178,6 @@ class Sponsorship_Manager_Ad_Slots {
 		foreach( $this->list as $slot_name ) {
 			$args = $this->build_query_args( $slot_name, true );
 
-			// eligible if post type matches query
-			if ( $post_type === $args['post_type'] ) {
-				$eligible = true;
-			}
-			// eligible if in array of specified post types
-			elseif ( is_array( $args['post_type'] ) && in_array( $post_type, $args['post_type'], true ) ) {
-				$eligible = true;
-			}
-			// eligible if post type is not excluded from search and query is for any post type
-			elseif ( 'any' === $args['post_type'] ) {
-				$object = get_post_type_object( $post_type );
-				if ( ! empty( $object ) && ! $object->exclude_from_search ) {
-					$eligible = true;
-				} else {
-					$eligible = false;
-				}
-			} else {
-				$eligible = false;
-			}
 
 
 		}
