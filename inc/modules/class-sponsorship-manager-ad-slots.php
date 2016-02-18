@@ -131,12 +131,18 @@ class Sponsorship_Manager_Ad_Slots {
 	 */
 	public function add_slot_targeting_field( $fields, $post_type ) {
 		$label = get_post_type_object( $post_type )->labels->singular_name;
+		$eligible_slots = $this->filter_ineligible_slots();
+		if ( empty( $eligible_slots ) ) {
+			$description = sprintf( __( 'This %s is not eligible for targeting to any available ad slots.', 'sponsorship-manager' ), $label );
+		} else {
+			$description = sprintf( __( 'This %s is eligible for targeting to these ad slots.', 'sponsorship-manager' ), $label );
+		}
 
 		// add field
 		$fields['ad_slot'] = new Fieldmanager_Checkboxes( array(
 			'label' => __( 'Sponsorship Manager Ad Slots', 'sponsorship-manager' ),
-			'description' => sprintf( __( 'This %s will be targeted to checked ad slots.', 'sponsorship-manager' ), $label ),
-			'options' => $this->filter_ineligible_slots(),
+			'description' => $description,
+			'options' => $eligible_slots,
 			'multiple' => true,
 		) );
 
