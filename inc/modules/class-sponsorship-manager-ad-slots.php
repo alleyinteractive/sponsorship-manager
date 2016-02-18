@@ -141,6 +141,7 @@ class Sponsorship_Manager_Ad_Slots {
 
 	/**
 	 * Set or delete post meta according to targeted ad slots
+	 * @todo convert to hidden taxonomy for query performance
 	 * @param array $values Fieldmanager data
 	 * @param Fieldmanager_Field $field Fieldmanager 'sponsorship-info' field
 	 * @return array $values Fieldmanager data
@@ -206,6 +207,7 @@ class Sponsorship_Manager_Ad_Slots {
 
 	/**
 	 * Builds WP_Query args array
+	 * @todo figure out what's happening here
 	 * @param string $slot_name Slot name
 	 * @param array $params Optional params as WP_Query arguments, may be empty
 	 * @return array List of eligible post IDs
@@ -213,6 +215,9 @@ class Sponsorship_Manager_Ad_Slots {
 	protected function build_query_args( $slot_name ) {
 
 		if ( null === $this->query_config ) {
+			/**
+			 * @todo Remove the Ad Slot Targeting checkbox for $slot_name from the edit screen if post is made ineligible by this filter
+			 */
 			$this->query_config = apply_filters( 'sponsorship_manager_ad_slots_query_config', array() );
 		}
 
@@ -264,6 +269,7 @@ class Sponsorship_Manager_Ad_Slots {
 
 		/**
 		 * @todo Make sure post has at least one term in the sponsorship_campaign taxonomy, otherwise it is not sponsored
+		 # @todo How is this filter different from `sponsorship_manager_ad_slots_query_config`?
 		 */
 
 		return apply_filters( 'sponsorship_manager_ad_slot_params', $params, $slot_name );
