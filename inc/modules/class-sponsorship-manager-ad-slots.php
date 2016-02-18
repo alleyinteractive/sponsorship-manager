@@ -154,10 +154,11 @@ class Sponsorship_Manager_Ad_Slots {
 	 * @return array Filtered list of ad slots
 	 */
 	public function filter_ineligible_slots() {
+		// get the ID
 		if ( ! empty( $_GET['post'] ) ) {
 			$id = $_GET['post'];
 		} elseif ( ! empty( $_POST['post_ID'] ) ) {
-			$id = $_GET['post_ID'];
+			$id = $_POST['post_ID'];
 		} else {
 			$id = 0;
 		}
@@ -183,12 +184,45 @@ class Sponsorship_Manager_Ad_Slots {
 		$ineligible_slots = array();
 		foreach( $this->list as $slot_name ) {
 			$args = $this->build_query_args( $slot_name, true );
-
-
-
+			error_log(print_r($args['post_type'], true));
+			// we have an id, make sure it can be found with our other query args
+			if ( ! empty( $id ) ) {
+				$args['post__in'][] = $id;
+				$eligible = in_array( $id, get_posts( $args ), true );
+				if ( ! $eligible ) {
+					$ineligible_slots[] = $slot_name;
+				}
+			}
+			// if we only have a post type (e.g. we're creating a new post), 3 things to check...
+			else {
+				// post is eligible if post type is specified
+				if ( $post_type === $args['post_type'] ) {
+					continue;
+				}
+				// post is eligible if post type is in specified array
+				elseif ( is_array( $args['post_type'] ) && in_array( $post_type, $args['post_type'], true ) ) {
+					continue;
+				}
+				// if query is for 'any' post type...
+				elseif ( 'any' === $args['post_type'] ) {
+					$object = get_post_type_object( $post_type );
+					// eligible if current post type is searchable
+					if ( $object && ! $object->exclude_from_search ) {
+						continue;
+					}
+					// ineligible if current post type is not searchable
+					else {
+						$ineligible_slots[] = $slot_name;
+					}
+				}
+				// not found to be eligible, so make it must be ineligible
+				else {
+					$ineligible_slots[] = $slot_name;
+				}
+			}
 		}
 
-		return $this->list;
+		return array_diff( $this->list, $ineligible_slots );
 	}
 
 	/**
