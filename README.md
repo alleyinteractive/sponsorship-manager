@@ -141,10 +141,12 @@ The same thing works for campaigns. You can use `Sponsorship_Manager_Campaign::i
 
 Let's say you're building a Recent Posts module where you always want to show four posts:
 
+```
 1. The most recent post
-1. The second-most recent post
-1. A sponsored post
-1. The third-most recent post
+2. The second-most recent post
+3. A sponsored post
+4. The third-most recent post
+```
 
 The ad slots feature allows you to determine which sponsored posts are eligible to display in position 3 in the module, and will distribute views evenly across the eligible posts.
 
