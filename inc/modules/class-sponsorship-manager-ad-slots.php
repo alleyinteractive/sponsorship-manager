@@ -132,13 +132,44 @@ class Sponsorship_Manager_Ad_Slots {
 	public function add_slot_targeting_field( $fields, $post_type ) {
 		$label = get_post_type_object( $post_type )->labels->singular_name;
 
+		// add field
 		$fields['ad_slot'] = new Fieldmanager_Checkboxes( array(
 			'label' => __( 'Sponsorship Manager Ad Slots', 'sponsorship-manager' ),
 			'description' => sprintf( __( 'This %s will be targeted to checked ad slots.', 'sponsorship-manager' ), $label ),
-			'options' => $this->list,
+			'options' => $this->filter_ineligible_slots(),
 			'multiple' => true,
 		) );
+
 		return $fields;
+	}
+
+	/**
+	 * When adding or editing a post, hide ad slots for which the post is ineligible
+	 * @param int|WP_Post $id Optional ID or post object, defaults to post being edited. ID takes precedence over post type.
+	 * @param string $post_type Optional post type, useful if not passing an ID, defaults to post type being edited
+	 * @param array $list Optional list of ad slot names, defaults to all ad slots (i.e. $this->list)
+	 * @return array Filtered list of ad slots
+	 */
+	public function filter_ineligible_slots( $id = null, $post_type = null, $list = null ) {
+		// get ID from function params or $_GET
+		if ( empty( $id ) ) {
+			if ( ! empty( $_GET['post'] ) ) {
+				$id = $_GET['post'];
+			} elseif ( ! empty( $_POST['post_ID'] ) ) {
+				$id = $_GET['post_ID'];
+			}
+		}
+		$id = absint( $id );
+
+		// if we have an ID, use that for the post type
+		if ( ! empty( $id ) ) {
+			$post_type = get_post_type( $id );
+		}
+		// if post type param wasn't passed to function, try $_GET
+		elseif ( empty( $post_type ) && ! empty( $_GET['post_type'] ) ) {
+			$post_type = $_GET['post_type'];
+		}
+
 	}
 
 	/**
