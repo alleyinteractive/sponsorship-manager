@@ -145,19 +145,15 @@ class Sponsorship_Manager_Ad_Slots {
 
 	/**
 	 * When adding or editing a post, hide ad slots for which the post is ineligible
-	 * @param int|WP_Post $id Optional ID or post object, defaults to post being edited. ID takes precedence over post type.
-	 * @param string $post_type Optional post type, useful if not passing an ID, defaults to post type being edited
-	 * @param array $list Optional list of ad slot names, defaults to all ad slots (i.e. $this->list)
 	 * @return array Filtered list of ad slots
 	 */
-	public function filter_ineligible_slots( $id = null, $post_type = null, $list = null ) {
-		// get ID from function params or $_GET
-		if ( empty( $id ) ) {
-			if ( ! empty( $_GET['post'] ) ) {
-				$id = $_GET['post'];
-			} elseif ( ! empty( $_POST['post_ID'] ) ) {
-				$id = $_GET['post_ID'];
-			}
+	public function filter_ineligible_slots() {
+		if ( ! empty( $_GET['post'] ) ) {
+			$id = $_GET['post'];
+		} elseif ( ! empty( $_POST['post_ID'] ) ) {
+			$id = $_GET['post_ID'];
+		} else {
+			$id = 0;
 		}
 		$id = absint( $id );
 
@@ -166,8 +162,15 @@ class Sponsorship_Manager_Ad_Slots {
 			$post_type = get_post_type( $id );
 		}
 		// if post type param wasn't passed to function, try $_GET
-		elseif ( empty( $post_type ) && ! empty( $_GET['post_type'] ) ) {
+		elseif ( ! empty( $_GET['post_type'] ) ) {
 			$post_type = $_GET['post_type'];
+		} else {
+			$post_type = null;
+		}
+
+		// if we got nothing, just return all the ad slots
+		if ( empty( $id ) && empty( $post_type ) ) {
+			return $this->list;
 		}
 
 	}
