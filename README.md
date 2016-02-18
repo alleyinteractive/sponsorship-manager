@@ -1,6 +1,6 @@
 # Sponsorship Manager
 
-This plugin is designed for clients wishing to integrate WordPress and DFP to manage sponsored content (native ad) campaigns.
+This plugin is designed for sites wishing to integrate WordPress and DFP to manage sponsored content (native ad) campaigns.
 
 **Fieldmanager is required.**
 
@@ -123,6 +123,8 @@ And a sponsored post with `$post->ID === 5678` would have a tracking pixel URL l
 http://pubads.g.doubleclick.net/gampad/ad?iu=/1234/Sponsored_Post&c=1446166093157185&sz=1x1&t=post_id%3D5678
 ```
 
+When editing a sponsored post, the Sponsorship Campaign meta box will display the ad unit name, creative size, and key-value data required to set up impression tracking with a DFP line item.
+
 #### Triggering the tracking pixel
 
 To trigger the pixel impression, use `Sponsorship_Manager_Post_Template::insert_tracking_pixel()`. This renders a script tag with no dependencies that requests the image after replacing the cache-busting parameter (`c`) with a new, unique integer.
@@ -132,6 +134,35 @@ Note that, by default, pixel impressions are not counted for logged in users, al
 The same thing works for campaigns. You can use `Sponsorship_Manager_Campaign::insert_tracking_pixel()` to log an impression of the campaign hub (landing page).
 
 **Note the distinction between `Sponsorship_Manager_Post_Template::insert_tracking_pixel()` for individual posts and `Sponsorship_Manager_Campaign::insert_tracking_pixel()` for campaign landing pages.**
+
+### Ad slots
+
+#### Overview
+
+Let's say you're building a Recent Posts module where you always want to show four posts:
+
+```
+1. The most recent post
+2. The second-most recent post
+3. A sponsored post
+4. The third-most recent post
+```
+
+The ad slots feature allows you to determine which sponsored posts are eligible to display in position 3 in the module, and will distribute views evenly across the eligible posts.
+
+To bypass page caching, it uses client-side logic to pick the sponsored post to show and an AJAX request to retrieve it. And since the AJAX request is same-origin, it also bypasses ad blockers.
+
+#### Setup
+
+1. Pass an array of slot names to the `sponsorship_manager_ad_slots_list` filter
+  1. When editing a sponsorable post, there will be a _Sponsorship Manager Ad Slots_ checkboxes array in the Sponsorship Campaign meta box. Use these checkboxes to target the post to one or more ad slots.
+1. Optionally, use the `sponsorship_manager_ad_slots_query_config` filter to pass [WP_Query](https://codex.wordpress.org/Class_Reference/WP_Query) arguments to refine which targeted posts would be eligible to show in the ad slot
+1. Use the `sponsorship_manager_slot_template_Sidebar_Recent_Module` filters to [create markup for your ad slot](#sponsorship_manager_slot_template_)
+1. Render the ad slot by one of two methods
+  1. Call `sponsorship_manager_ad_slot( 'Sidebar_Recent_Module' )` in a template; this function can also accept `WP_Query` args to refine eligibility
+  1. Use the shortcode `[sponsorship-ad-slot slot="Sidebar_Recent_Module"]` inside _any_ post, even if it is not sponsored. Additional shortcode attributes that refine what posts are eligible to appear in the ad slot:
+      1. `campaign=123` or `campaign="my-campaign": the slug or ID of a term in the `sponsorship_campaign` taxonomy
+      1. `post=4567`: the ID of a specific sponsored post
 
 ## Filters
 
@@ -222,6 +253,54 @@ Applied to child fields in the `sponsorship-info` Fieldmanager Group for posts i
 ### sponsorship_manager_term_fields
 
 Applied to child fields in the `sponsorship-campaign-display` Fieldmanager Group for terms in the `sponsorship_campaign` taxonomy
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `$fields` | `array` | See `inc/fields.php` |
+
+
+### sponsorship_manager_skip_ad_slot_transients
+
+If set to `true`, the queries that build the lists of eligible posts for each ad slot will run every time instead of caching in a transient.
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `$skip_transient` | `bool` | Defaults to `false` |
+
+### sponsorship_manager_ad_slots_query_config
+
+Used to refine eligbility for an ad slot, so that post targeted to an ad slot might be excluded in specific situations. For instance, if you wanted to make sure on a category archive page that the `Sidebar_Recent_Module` slot only showed sponsored posts with that specific category, you could use this filter.
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `$query_config` | `array` | Specify key-value pairs of ad slot name and WP_Query args. Defaults to empty array. |
+
+### sponsorship_manager_ad_slot_params
+
+Not sure how this is different from `sponsorship_manager_ad_slots_query_config`, need to investigate...
+
+### sponsorship_manager_slot_posts
+
+Modify the list of eligible posts for an ad slot before outputting.
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `$posts` | `array` | List of post IDs |
+| `$slot_name` | `string` | Ad slot being rendered |
+| `$args` | `array` | WP_Query args, but _only_ the ones passed to `Sponsorship_Manager_Ad_Slots::render_ad_slot()`, not args set with `sponsorship_manager_ad_slots_query_config`  |
+
+### sponsorship_manager_slot_template_*
+
+Returns the HTML output for an [ad slot](#ad-slots). Example: for the `Sidebar_Recent_Module` slot, the template filter would be `sponsorship_manager_slot_template_Sidebar_Recent_Module`
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `$slot_name` | `string` | Name of ad slot |
+| `$post` | `WP_Post` | Post object being rendered in the slot |
+
+### sponsorship_manager_ad_slots_list
+
+Simple array of strings for each ad slot
 
 | Param | Type | Description |
 |-------|------|-------------|
