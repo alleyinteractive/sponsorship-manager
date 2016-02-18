@@ -155,7 +155,7 @@ To bypass page caching, it uses client-side logic to pick the sponsored post to 
 1. Pass an array of slot names to the `sponsorship_manager_ad_slots_list` filter
   1. When editing a sponsorable post, there will be a _Sponsorship Manager Ad Slots_ checkboxes array in the Sponsorship Campaign meta box. Use these checkboxes to target the post to one or more ad slots.
 1. Optionally, use the `sponsorship_manager_ad_slots_query_config` filter to pass [WP_Query](https://codex.wordpress.org/Class_Reference/WP_Query) arguments to refine which targeted posts would be eligible to show in the ad slot
-1. Use the `sponsorship_manager_slot_template_Sidebar_Recent_Module` filters to [create markup for your ad slot](#sponsorship-manager-slot-template-)
+1. Use the `sponsorship_manager_slot_template_Sidebar_Recent_Module` filters to [create markup for your ad slot](#sponsorship_manager_slot_template_)
 1. Render the ad slot by one of two methods
   1. Call `sponsorship_manager_ad_slot( 'Sidebar_Recent_Module' )` in a template; this function can also accept `WP_Query` args to refine eligibility
   1. Use the shortcode `[sponsorship-ad-slot slot="Sidebar_Recent_Module"]` inside _any_ post, even if it is not sponsored. Additional shortcode attributes that refine what posts are eligible to appear in the ad slot:
@@ -272,6 +272,10 @@ Used to refine eligbility for an ad slot, so that post targeted to an ad slot mi
 | Param | Type | Description |
 |-------|------|-------------|
 | `$query_config` | `array` | Specify key-value pairs of ad slot name and WP_Query args. Defaults to empty array. |
+
+### sponsorship_manager_ad_slot_params
+
+Not sure how this is different from `sponsorship_manager_ad_slots_query_config`, need to investigate...
 
 ### sponsorship_manager_slot_posts
 
