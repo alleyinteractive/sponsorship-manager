@@ -103,7 +103,7 @@ class Sponsorship_Manager_Ad_Slots {
 		}
 
 		// Add slot selection field to posts
-		add_filter( 'sponsorship_manager_post_fields', array( $this, 'add_slot_targeting_field' ) );
+		add_filter( 'sponsorship_manager_post_fields', array( $this, 'add_slot_targeting_field' ), 10, 2 );
 		add_filter( 'fm_presave_alter_values', array( $this, 'set_targeting_postmeta' ), 10, 2 );
 
 		// slot shortcode
@@ -129,10 +129,12 @@ class Sponsorship_Manager_Ad_Slots {
 	 * @param array $fields Fieldmanager fields array
 	 * @return array Fieldmanager fields array
 	 */
-	public function add_slot_targeting_field( $fields ) {
+	public function add_slot_targeting_field( $fields, $post_type ) {
+		$label = get_post_type_object( $post_type )->labels->singular_name;
+
 		$fields['ad_slot'] = new Fieldmanager_Checkboxes( array(
 			'label' => __( 'Sponsorship Manager Ad Slots', 'sponsorship-manager' ),
-			'description' => __( 'Select slots to target this post to', 'sponsorship-manager' ),
+			'description' => sprintf( __( 'This %s will be targeted to checked ad slots.', 'sponsorship-manager' ), $label ),
 			'options' => $this->list,
 			'multiple' => true,
 		) );
