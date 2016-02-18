@@ -286,6 +286,9 @@ class Sponsorship_Manager_Ad_Slots {
 			return '';
 		}
 
+		/**
+		 * @todo $args should also include args set with `sponsorship_manager_ad_slots_query_config`
+		 */
 		$posts = $this->get_eligible_posts( $slot_name, $args );
 		$posts = apply_filters( 'sponsorship_manager_slot_posts', $posts, $slot_name, $args );
 		if ( empty( $posts ) ) {

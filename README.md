@@ -283,15 +283,6 @@ Modify the list of eligible posts for an ad slot before outputting.
 | `$slot_name` | `string` | Ad slot being rendered |
 | `$args` | `array` | WP_Query args, but _only_ the ones passed to `Sponsorship_Manager_Ad_Slots::render_ad_slot()`, not args set with `sponsorship_manager_ad_slots_query_config`  |
 
-### sponsorship_manager_ad_slots_list
-
-Simple array of strings for each ad slot
-
-| Param | Type | Description |
-|-------|------|-------------|
-| `$fields` | `array` | See `inc/fields.php` |
-
-
 ### sponsorship_manager_slot_template_*
 
 Returns the HTML output for an [ad slot](#ad-slots). Example: for the `Sidebar_Recent_Module` slot, the template filter would be `sponsorship_manager_slot_template_Sidebar_Recent_Module`
@@ -300,6 +291,14 @@ Returns the HTML output for an [ad slot](#ad-slots). Example: for the `Sidebar_R
 |-------|------|-------------|
 | `$slot_name` | `string` | Name of ad slot |
 | `$post` | `WP_Post` | Post object being rendered in the slot |
+
+### sponsorship_manager_ad_slots_list
+
+Simple array of strings for each ad slot
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `$fields` | `array` | See `inc/fields.php` |
 
 ## Examples
 
