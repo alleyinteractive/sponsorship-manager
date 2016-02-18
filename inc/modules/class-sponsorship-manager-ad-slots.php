@@ -173,6 +173,35 @@ class Sponsorship_Manager_Ad_Slots {
 			return $this->list;
 		}
 
+		// check eligibility against each slot's query args
+		$ineligible_slots = array();
+		foreach( $this->list as $slot_name ) {
+			$args = $this->build_query_args( $slot_name, true );
+
+			// eligible if post type matches query
+			if ( $post_type === $args['post_type'] ) {
+				$eligible = true;
+			}
+			// eligible if in array of specified post types
+			elseif ( is_array( $args['post_type'] ) && in_array( $post_type, $args['post_type'], true ) ) {
+				$eligible = true;
+			}
+			// eligible if post type is not excluded from search and query is for any post type
+			elseif ( 'any' === $args['post_type'] ) {
+				$object = get_post_type_object( $post_type );
+				if ( ! empty( $object ) && ! $object->exclude_from_search ) {
+					$eligible = true;
+				} else {
+					$eligible = false;
+				}
+			} else {
+				$eligible = false;
+			}
+
+
+		}
+
+		return $this->list;
 	}
 
 	/**
@@ -245,10 +274,10 @@ class Sponsorship_Manager_Ad_Slots {
 	 * Builds WP_Query args array
 	 * @todo figure out what's happening here
 	 * @param string $slot_name Slot name
-	 * @param array $params Optional params as WP_Query arguments, may be empty
+	 * @param array $skip_meta_query Optional param. If true, will skip the targeting meta query. Used in $this->filter_ineligible_slots()
 	 * @return array List of eligible post IDs
 	 */
-	protected function build_query_args( $slot_name ) {
+	protected function build_query_args( $slot_name, $skip_meta_query = false ) {
 
 		if ( null === $this->query_config ) {
 			/**
@@ -258,40 +287,43 @@ class Sponsorship_Manager_Ad_Slots {
 		}
 
 		$params = ! empty( $this->query_config[ $slot_name ] ) ? $this->query_config[ $slot_name ] : array();
-		/**
-		 * @todo Use hidden taxonomy instead of postmeta for query performance
-		 */
-		$slot_meta = array(
-			'key' => $this->postmeta_key_prefix . $slot_name,
-			'compare' => 'EXISTS',
-		);
 
-		// straight meta query if no other params are passed
-		if ( empty( $params ) ) {
-			$params = array( 'meta_query' => array( $slot_meta ) );
-		}
-		// create new meta_query array
-		elseif ( empty( $params[ 'meta_query' ] ) ) {
-			$params['meta_query'] = array( $slot_meta );
-		}
-		// append to existing meta_query array
-		else {
-			$params['meta_query'][] = $slot_meta;
-		}
-
-		// if we have meta_key/meta_value params, move into meta_query array
-		if ( ! empty( $params['meta_key'] ) && ( ! empty( $params['meta_value'] ) || ! empty( $params['meta_value_num'] ) ) ) {
-			$params_meta = array(
-				'key'	=> $params['meta_key'],
-				'value'	=> empty( $params['meta_value_num'] ) ? $params['meta_value'] : $params['meta_value_num'],
-				'type'	=> empty( $params['meta_value_num'] ) ? 'CHAR' : 'NUMERIC',
+		if ( ! $skip_meta_query ) {
+			/**
+			 * @todo Use hidden taxonomy instead of postmeta for query performance
+			 */
+			$slot_meta = array(
+				'key' => $this->postmeta_key_prefix . $slot_name,
+				'compare' => 'EXISTS',
 			);
 
-			if ( ! empty( $params['meta_compare'] ) ) {
-				$params_meta['compare'] = $params['meta_compare'];
+			// straight meta query if no other params are passed
+			if ( empty( $params ) ) {
+				$params = array( 'meta_query' => array( $slot_meta ) );
+			}
+			// create new meta_query array
+			elseif ( empty( $params[ 'meta_query' ] ) ) {
+				$params['meta_query'] = array( $slot_meta );
+			}
+			// append to existing meta_query array
+			else {
+				$params['meta_query'][] = $slot_meta;
 			}
 
-			$params['meta_query'][] = $params_meta;
+			// if we have meta_key/meta_value params, move into meta_query array
+			if ( ! empty( $params['meta_key'] ) && ( ! empty( $params['meta_value'] ) || ! empty( $params['meta_value_num'] ) ) ) {
+				$params_meta = array(
+					'key'	=> $params['meta_key'],
+					'value'	=> empty( $params['meta_value_num'] ) ? $params['meta_value'] : $params['meta_value_num'],
+					'type'	=> empty( $params['meta_value_num'] ) ? 'CHAR' : 'NUMERIC',
+				);
+
+				if ( ! empty( $params['meta_compare'] ) ) {
+					$params_meta['compare'] = $params['meta_compare'];
+				}
+
+				$params['meta_query'][] = $params_meta;
+			}
 		}
 
 		// no post_type is specified, use all the enabled ones
