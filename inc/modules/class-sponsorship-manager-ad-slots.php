@@ -127,6 +127,7 @@ class Sponsorship_Manager_Ad_Slots {
 	/**
 	 * If slot targeting is enabled, add a slot selection field for posts
 	 * @param array $fields Fieldmanager fields array
+	 * @param string $post_type Post type
 	 * @return array Fieldmanager fields array
 	 */
 	public function add_slot_targeting_field( $fields, $post_type ) {
@@ -156,13 +157,12 @@ class Sponsorship_Manager_Ad_Slots {
 	public function filter_ineligible_slots() {
 		// get the ID
 		if ( ! empty( $_GET['post'] ) ) {
-			$id = $_GET['post'];
+			$id = absint( $_GET['post'] );
 		} elseif ( ! empty( $_POST['post_ID'] ) ) {
-			$id = $_POST['post_ID'];
+			$id = absint( $_POST['post_ID'] );
 		} else {
 			$id = 0;
 		}
-		$id = absint( $id );
 
 		// if we have an ID, use that for the post type
 		if ( ! empty( $id ) ) {
@@ -170,7 +170,7 @@ class Sponsorship_Manager_Ad_Slots {
 		}
 		// if post type param wasn't passed to function, try $_GET
 		elseif ( ! empty( $_GET['post_type'] ) ) {
-			$post_type = $_GET['post_type'];
+			$post_type = sanitize_key( $_GET['post_type'] );
 		} else {
 			$post_type = null;
 		}
@@ -184,7 +184,6 @@ class Sponsorship_Manager_Ad_Slots {
 		$ineligible_slots = array();
 		foreach( $this->list as $slot_name ) {
 			$args = $this->build_query_args( $slot_name, true );
-			error_log(print_r($args['post_type'], true));
 			// we have an id, make sure it can be found with our other query args
 			if ( ! empty( $id ) ) {
 				$args['post__in'][] = $id;
