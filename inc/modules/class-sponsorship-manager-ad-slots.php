@@ -103,7 +103,7 @@ class Sponsorship_Manager_Ad_Slots {
 		}
 
 		// Add slot selection field to posts
-		add_filter( 'sponsorship_manager_post_fields', array( $this, 'add_slot_targeting_field' ) );
+		add_filter( 'sponsorship_manager_post_fields', array( $this, 'add_slot_targeting_field' ), 10, 2 );
 		add_filter( 'fm_presave_alter_values', array( $this, 'set_targeting_postmeta' ), 10, 2 );
 
 		// slot shortcode
@@ -127,16 +127,101 @@ class Sponsorship_Manager_Ad_Slots {
 	/**
 	 * If slot targeting is enabled, add a slot selection field for posts
 	 * @param array $fields Fieldmanager fields array
+	 * @param string $post_type Post type
 	 * @return array Fieldmanager fields array
 	 */
-	public function add_slot_targeting_field( $fields ) {
+	public function add_slot_targeting_field( $fields, $post_type ) {
+		$label = get_post_type_object( $post_type )->labels->singular_name;
+		$eligible_slots = $this->filter_ineligible_slots();
+		if ( empty( $eligible_slots ) ) {
+			$description = sprintf( __( 'This %s is not eligible for targeting to any available ad slots.', 'sponsorship-manager' ), $label );
+		} else {
+			$description = sprintf( __( 'This %s is eligible for targeting to these ad slots.', 'sponsorship-manager' ), $label );
+		}
+
+		// add field
 		$fields['ad_slot'] = new Fieldmanager_Checkboxes( array(
 			'label' => __( 'Sponsorship Manager Ad Slots', 'sponsorship-manager' ),
-			'description' => __( 'Select slots to target this post to', 'sponsorship-manager' ),
-			'options' => $this->list,
+			'description' => $description,
+			'options' => $eligible_slots,
 			'multiple' => true,
 		) );
+
 		return $fields;
+	}
+
+	/**
+	 * When adding or editing a post, hide ad slots for which the post is ineligible
+	 * @return array Filtered list of ad slots
+	 */
+	public function filter_ineligible_slots() {
+		// get the ID
+		if ( ! empty( $_GET['post'] ) ) {
+			$id = absint( $_GET['post'] );
+		} elseif ( ! empty( $_POST['post_ID'] ) ) {
+			$id = absint( $_POST['post_ID'] );
+		} else {
+			$id = 0;
+		}
+
+		// if we have an ID, use that for the post type
+		if ( ! empty( $id ) ) {
+			$post_type = get_post_type( $id );
+		}
+		// if post type param wasn't passed to function, try $_GET
+		elseif ( ! empty( $_GET['post_type'] ) ) {
+			$post_type = sanitize_key( $_GET['post_type'] );
+		} else {
+			$post_type = null;
+		}
+
+		// if we got nothing, just return all the ad slots
+		if ( empty( $id ) && empty( $post_type ) ) {
+			return $this->list;
+		}
+
+		// check eligibility against each slot's query args
+		$ineligible_slots = array();
+		foreach( $this->list as $slot_name ) {
+			$args = $this->build_query_args( $slot_name, true );
+			// we have an id, make sure it can be found with our other query args
+			if ( ! empty( $id ) ) {
+				$args['post__in'][] = $id;
+				$eligible = in_array( $id, get_posts( $args ), true );
+				if ( ! $eligible ) {
+					$ineligible_slots[] = $slot_name;
+				}
+			}
+			// if we only have a post type (e.g. we're creating a new post), 3 things to check...
+			else {
+				// post is eligible if post type is specified
+				if ( $post_type === $args['post_type'] ) {
+					continue;
+				}
+				// post is eligible if post type is in specified array
+				elseif ( is_array( $args['post_type'] ) && in_array( $post_type, $args['post_type'], true ) ) {
+					continue;
+				}
+				// if query is for 'any' post type...
+				elseif ( 'any' === $args['post_type'] ) {
+					$object = get_post_type_object( $post_type );
+					// eligible if current post type is searchable
+					if ( $object && ! $object->exclude_from_search ) {
+						continue;
+					}
+					// ineligible if current post type is not searchable
+					else {
+						$ineligible_slots[] = $slot_name;
+					}
+				}
+				// not found to be eligible, so make it must be ineligible
+				else {
+					$ineligible_slots[] = $slot_name;
+				}
+			}
+		}
+
+		return array_diff( $this->list, $ineligible_slots );
 	}
 
 	/**
@@ -209,10 +294,10 @@ class Sponsorship_Manager_Ad_Slots {
 	 * Builds WP_Query args array
 	 * @todo figure out what's happening here
 	 * @param string $slot_name Slot name
-	 * @param array $params Optional params as WP_Query arguments, may be empty
+	 * @param array $skip_meta_query Optional param. If true, will skip the targeting meta query. Used in $this->filter_ineligible_slots()
 	 * @return array List of eligible post IDs
 	 */
-	protected function build_query_args( $slot_name ) {
+	protected function build_query_args( $slot_name, $skip_meta_query = false ) {
 
 		if ( null === $this->query_config ) {
 			/**
@@ -222,40 +307,43 @@ class Sponsorship_Manager_Ad_Slots {
 		}
 
 		$params = ! empty( $this->query_config[ $slot_name ] ) ? $this->query_config[ $slot_name ] : array();
-		/**
-		 * @todo Use hidden taxonomy instead of postmeta for query performance
-		 */
-		$slot_meta = array(
-			'key' => $this->postmeta_key_prefix . $slot_name,
-			'compare' => 'EXISTS',
-		);
 
-		// straight meta query if no other params are passed
-		if ( empty( $params ) ) {
-			$params = array( 'meta_query' => array( $slot_meta ) );
-		}
-		// create new meta_query array
-		elseif ( empty( $params[ 'meta_query' ] ) ) {
-			$params['meta_query'] = array( $slot_meta );
-		}
-		// append to existing meta_query array
-		else {
-			$params['meta_query'][] = $slot_meta;
-		}
-
-		// if we have meta_key/meta_value params, move into meta_query array
-		if ( ! empty( $params['meta_key'] ) && ( ! empty( $params['meta_value'] ) || ! empty( $params['meta_value_num'] ) ) ) {
-			$params_meta = array(
-				'key'	=> $params['meta_key'],
-				'value'	=> empty( $params['meta_value_num'] ) ? $params['meta_value'] : $params['meta_value_num'],
-				'type'	=> empty( $params['meta_value_num'] ) ? 'CHAR' : 'NUMERIC',
+		if ( ! $skip_meta_query ) {
+			/**
+			 * @todo Use hidden taxonomy instead of postmeta for query performance
+			 */
+			$slot_meta = array(
+				'key' => $this->postmeta_key_prefix . $slot_name,
+				'compare' => 'EXISTS',
 			);
 
-			if ( ! empty( $params['meta_compare'] ) ) {
-				$params_meta['compare'] = $params['meta_compare'];
+			// straight meta query if no other params are passed
+			if ( empty( $params ) ) {
+				$params = array( 'meta_query' => array( $slot_meta ) );
+			}
+			// create new meta_query array
+			elseif ( empty( $params[ 'meta_query' ] ) ) {
+				$params['meta_query'] = array( $slot_meta );
+			}
+			// append to existing meta_query array
+			else {
+				$params['meta_query'][] = $slot_meta;
 			}
 
-			$params['meta_query'][] = $params_meta;
+			// if we have meta_key/meta_value params, move into meta_query array
+			if ( ! empty( $params['meta_key'] ) && ( ! empty( $params['meta_value'] ) || ! empty( $params['meta_value_num'] ) ) ) {
+				$params_meta = array(
+					'key'	=> $params['meta_key'],
+					'value'	=> empty( $params['meta_value_num'] ) ? $params['meta_value'] : $params['meta_value_num'],
+					'type'	=> empty( $params['meta_value_num'] ) ? 'CHAR' : 'NUMERIC',
+				);
+
+				if ( ! empty( $params['meta_compare'] ) ) {
+					$params_meta['compare'] = $params['meta_compare'];
+				}
+
+				$params['meta_query'][] = $params_meta;
+			}
 		}
 
 		// no post_type is specified, use all the enabled ones
