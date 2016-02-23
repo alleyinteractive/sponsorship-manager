@@ -110,7 +110,7 @@ class Sponsorship_Manager_Ad_Slots {
 		add_shortcode( $this->shortcode_name, array( $this, 'slot_shortcode' ) );
 
 		// handle AJAX request for ad slot
-		add_rewrite_tag('%sponsorship_ad_slot%', '([A-Za-z0-9\-_]+)');
+		add_rewrite_tag( '%sponsorship_ad_slot%', '([A-Za-z0-9\-_]+)' );
 		add_rewrite_rule( '^sponsorship-manager/([A-Za-z0-9\-_]+)/(\d+)/?', 'index.php?sponsorship_ad_slot=$matches[1]&p=$matches[2]', 'top' );
 		add_action( 'parse_query', array( $this, 'do_api_request' ) );
 	}
@@ -448,7 +448,7 @@ class Sponsorship_Manager_Ad_Slots {
 	 */
 	public function do_api_request( $query ) {
 		// must be main query and our API query var
-		$slot_name = $query->get( 'sponsorship_ad_slot');
+		$slot_name = $query->get( 'sponsorship_ad_slot' );
 		if ( ! $query->is_main_query() || empty( $slot_name ) ) {
 			return;
 		}
