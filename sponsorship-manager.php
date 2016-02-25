@@ -2,8 +2,8 @@
 /**
  * Sponsorship Manager Plugin
  *
- * @package Sponsorship
- * @version 0.0.1
+ * @package Sponsorship Manager
+ * @version 0.0.3
  */
 
 /*
@@ -11,7 +11,7 @@
   Plugin URI: http://www.alleyinteractive.com/
   Description: Manage sponsored content campaigns from within WordPress
   Author: Alley Interactive
-  Version: 0.0.1
+  Version: 0.0.3
   Author URI: http://www.alleyinteractive.com/
 */
 
