@@ -97,7 +97,7 @@ class Sponsorship_Manager_Ad_Slots {
 
 		// Dev stuff
 		$this->skip_transient = apply_filters( 'sponsorship_manager_skip_ad_slot_transients', $this->skip_transient );
-		if ( ! empty( $_SERVER['QUERY_STRING'] ) && 1 === preg_match( '/(?:^|&)' . $this->dev_query_param . '(?:$|=|&)/', sanitize_text_field( $_SERVER['QUERY_STRING'] ) ) ) {
+		if ( ! empty( $_SERVER['QUERY_STRING'] ) && 1 === preg_match( '/(?:^|&)' . $this->dev_query_param . '(?:$|=|&)/', sanitize_text_field( wp_unslash( $_SERVER['QUERY_STRING'] ) ) ) ) {
 			$this->dev_mode = true;
 			$this->skip_transient = true;
 		}
