@@ -113,7 +113,7 @@ class Sponsorship_Tracking_Pixel {
 		<script>
 			if ( typeof console !== 'undefined' && typeof console.log !== 'undefined' ) {
 				<?php // the only escaping we need is to avoid breaking the JS string ?>
-				console.log( 'Tracking pixel <?php echo addslashes( $pixel_url ); ?> not inserted' );
+				console.log( 'Tracking pixel <?php echo esc_url( addslashes( $pixel_url ) ); ?> not inserted' );
 			}
 		</script>
 	<?php }
@@ -167,24 +167,20 @@ class Sponsorship_Tracking_Pixel {
 			return $html;
 		}
 
-
 		$targeting_info = '<div class="sponsorship-manager targeting-info">' .
 			'<h4>' . esc_html__( 'DFP Targeting Info', 'sponsorship-manager' ) . '</h4>';
 
 		// creating a new post
 		if ( $this->is_post_new ) {
 			$targeting_info .= '<p>' . esc_html__( 'Targeting info will be available after selecting a Sponsorship Campaign and saving.', 'sponsorship-manager' ) . '</p>';
-		}
-		// editing a post that does not have a sponsor
-		elseif ( ! sponsorship_post_is_sponsored() ) {
+		} elseif ( ! sponsorship_post_is_sponsored() ) {
+			// editing a post that does not have a sponsor
 			return $html;
-		}
-		// post is sponsored in WP but DFP is not configured
-		elseif ( empty( $this->config[ $post_type ] ) ) {
+		} elseif ( empty( $this->config[ $post_type ] ) ) {
+			// post is sponsored in WP but DFP is not configured
 			$targeting_info .= '<p>' . esc_html__( 'Targeting info is not available for this post type.', 'sponsorship-manager' ) . '</p>';
-		}
-		// post is sponsored and DFP is configured
-		else {
+		} else {
+			// post is sponsored and DFP is configured
 			$targeting_info .= '<p>' . esc_html__( 'Ad Unit: ', 'sponsorship-manager' ) . esc_html( $this->config[ $post_type ]['unit'] ) . '<br>';
 			$targeting_info .= esc_html__( 'Creative Size: ', 'sponsorship-manager' ) . esc_html( $this->config[ $post_type ]['size'] ) . '<br>';
 			$targeting_info .= esc_html__( 'Key: ', 'sponsorship-manager' ) . esc_html( $this->config[ $post_type ]['key'] ) . '<br>';

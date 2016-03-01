@@ -97,7 +97,7 @@ class Sponsorship_Manager_Ad_Slots {
 
 		// Dev stuff
 		$this->skip_transient = apply_filters( 'sponsorship_manager_skip_ad_slot_transients', $this->skip_transient );
-		if ( ! empty( $_SERVER['QUERY_STRING'] ) && 1 === preg_match( '/(?:^|&)' . $this->dev_query_param . '(?:$|=|&)/', $_SERVER['QUERY_STRING'] ) ) {
+		if ( ! empty( $_SERVER['QUERY_STRING'] ) && 1 === preg_match( '/(?:^|&)' . $this->dev_query_param . '(?:$|=|&)/', sanitize_text_field( $_SERVER['QUERY_STRING'] ) ) ) {
 			$this->dev_mode = true;
 			$this->skip_transient = true;
 		}
@@ -167,9 +167,8 @@ class Sponsorship_Manager_Ad_Slots {
 		// if we have an ID, use that for the post type
 		if ( ! empty( $id ) ) {
 			$post_type = get_post_type( $id );
-		}
-		// if post type param wasn't passed to function, try $_GET
-		elseif ( ! empty( $_GET['post_type'] ) ) {
+		} elseif ( ! empty( $_GET['post_type'] ) ) {
+			// if post type param wasn't passed to function, try $_GET
 			$post_type = sanitize_key( $_GET['post_type'] );
 		} else {
 			$post_type = null;
@@ -182,40 +181,36 @@ class Sponsorship_Manager_Ad_Slots {
 
 		// check eligibility against each slot's query args
 		$ineligible_slots = array();
-		foreach( $this->list as $slot_name ) {
+		foreach ( $this->list as $slot_name ) {
 			$args = $this->build_query_args( $slot_name, true );
 			// we have an id, make sure it can be found with our other query args
 			if ( ! empty( $id ) ) {
 				$args['post__in'][] = $id;
+				// use of uncached get_posts() is intentional here inside wp-admin
 				$eligible = in_array( $id, get_posts( $args ), true );
 				if ( ! $eligible ) {
 					$ineligible_slots[] = $slot_name;
 				}
-			}
-			// if we only have a post type (e.g. we're creating a new post), 3 things to check...
-			else {
-				// post is eligible if post type is specified
+			} else {
+				// if we only have a post type (e.g. we're creating a new post), 3 things to check...
 				if ( $post_type === $args['post_type'] ) {
+					// 1. post is eligible if post type is specified
 					continue;
-				}
-				// post is eligible if post type is in specified array
-				elseif ( is_array( $args['post_type'] ) && in_array( $post_type, $args['post_type'], true ) ) {
+				} elseif ( is_array( $args['post_type'] ) && in_array( $post_type, $args['post_type'], true ) ) {
+					// 2. post is eligible if post type is in specified array
 					continue;
-				}
-				// if query is for 'any' post type...
-				elseif ( 'any' === $args['post_type'] ) {
+				} elseif ( 'any' === $args['post_type'] ) {
+					// 3. if query is for 'any' post type...
 					$object = get_post_type_object( $post_type );
-					// eligible if current post type is searchable
 					if ( $object && ! $object->exclude_from_search ) {
+						// eligible if current post type is searchable
 						continue;
-					}
-					// ineligible if current post type is not searchable
-					else {
+					} else {
+						// ineligible if current post type is not searchable
 						$ineligible_slots[] = $slot_name;
 					}
-				}
-				// not found to be eligible, so make it must be ineligible
-				else {
+				} else {
+					// not found to be eligible, so make it must be ineligible
 					$ineligible_slots[] = $slot_name;
 				}
 			}
@@ -320,13 +315,11 @@ class Sponsorship_Manager_Ad_Slots {
 			// straight meta query if no other params are passed
 			if ( empty( $params ) ) {
 				$params = array( 'meta_query' => array( $slot_meta ) );
-			}
-			// create new meta_query array
-			elseif ( empty( $params[ 'meta_query' ] ) ) {
+			} elseif ( empty( $params['meta_query'] ) ) {
+				// create new meta_query array
 				$params['meta_query'] = array( $slot_meta );
-			}
-			// append to existing meta_query array
-			else {
+			} else {
+				// append to existing meta_query array
 				$params['meta_query'][] = $slot_meta;
 			}
 
@@ -532,7 +525,7 @@ add_action( 'init', 'sponsorship_manager_setup_ad_slots', 11 );
  * @param array $args Optional WP_Query args that override initial config
  * @return array List of IDs
  */
-function sponsorship_manager_has_eligible_posts ( $slot_name, $args = false ) {
+function sponsorship_manager_has_eligible_posts( $slot_name, $args = false ) {
 	$posts = Sponsorship_Manager_Ad_Slots::instance()->get_eligible_posts( $slot_name, $args );
 	return ! empty( $posts );
 }
@@ -543,7 +536,7 @@ function sponsorship_manager_has_eligible_posts ( $slot_name, $args = false ) {
  * @param array $args Optional WP_Query args that override initial config
  * @return array List of IDs
  */
-function sponsorship_manager_get_eligible_posts ( $slot_name, $args = false ) {
+function sponsorship_manager_get_eligible_posts( $slot_name, $args = false ) {
 	return Sponsorship_Manager_Ad_Slots::instance()->get_eligible_posts( $slot_name, $args );
 }
 
