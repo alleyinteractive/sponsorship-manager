@@ -77,13 +77,17 @@ class Sponsorship_Manager_Archiveless {
 	 * @return array $data, potentially with a new status.
 	 */
 	public function wp_insert_post_data( $data, $postarr ) {
-		// replace 'publish' with custom status when published post has "hide from..." box checked
-		if ( 'publish' === $data['post_status'] ) {
-			if ( ! empty( $_POST[ $this->meta_key ][ $this->archiveless_meta_key ] ) && '1' === $_POST[ $this->meta_key ][ $this->archiveless_meta_key ] ) {
-				$data['post_status'] = $this->status;
-			} elseif ( ! empty( $postarr['ID'] ) ) {
-				if ( ! empty( $postarr[ $this->meta_key ][ $this->archiveless_meta_key ] ) && '1' === $postarr[ $this->meta_key ][ $this->archiveless_meta_key ] ) {
+		// check nonce
+		$nonce_key = 'fieldmanager-' . $this->meta_key . '-nonce';
+		if ( wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST[ $nonce_key ] ) ), 'fieldmanager-save-' . $this->meta_key ) ) {
+			// replace 'publish' with custom status when published post has "hide from..." box checked
+			if ( 'publish' === $data['post_status'] ) {
+				if ( ! empty( $_POST[ $this->meta_key ][ $this->archiveless_meta_key ] ) && '1' === $_POST[ $this->meta_key ][ $this->archiveless_meta_key ] ) {
 					$data['post_status'] = $this->status;
+				} elseif ( ! empty( $postarr['ID'] ) ) {
+					if ( ! empty( $postarr[ $this->meta_key ][ $this->archiveless_meta_key ] ) && '1' === $postarr[ $this->meta_key ][ $this->archiveless_meta_key ] ) {
+						$data['post_status'] = $this->status;
+					}
 				}
 			}
 		}
