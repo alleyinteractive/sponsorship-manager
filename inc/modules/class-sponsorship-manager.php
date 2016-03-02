@@ -117,7 +117,7 @@ class Sponsorship_Manager {
 		 * to do: custom capabilities for sponsorship_campaign taxonomy
 		 */
 		if ( current_user_can( 'manage_categories' ) ) {
-			echo '<p>' . sprintf( __( 'You can add one <a href="%s">here</a>.', 'sponsorship-manager' ), admin_url( 'edit-tags.php?taxonomy=sponsorship_campaign' ) ) . '</p>';
+			echo '<p>' . sprintf( wp_kses_post( __( 'You can add one <a href="%s">here</a>.', 'sponsorship-manager' ) ), esc_url( admin_url( 'edit-tags.php?taxonomy=sponsorship_campaign' ) ) ) . '</p>';
 		}
 	}
 }

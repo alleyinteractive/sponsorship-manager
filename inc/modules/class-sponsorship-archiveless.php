@@ -78,7 +78,7 @@ class Sponsorship_Manager_Archiveless {
 	 */
 	public function wp_insert_post_data( $data, $postarr ) {
 		// replace 'publish' with custom status when published post has "hide from..." box checked
-		if ( 'publish' == $data['post_status'] ) {
+		if ( 'publish' === $data['post_status'] ) {
 			if ( ! empty( $_POST[ $this->meta_key ][ $this->archiveless_meta_key ] ) && '1' === $_POST[ $this->meta_key ][ $this->archiveless_meta_key ] ) {
 				$data['post_status'] = $this->status;
 			} elseif ( ! empty( $postarr['ID'] ) ) {
@@ -97,7 +97,7 @@ class Sponsorship_Manager_Archiveless {
 	 */
 	public function fool_edit_form() {
 		global $post;
-		if ( $this->status == $post->post_status ) {
+		if ( $this->status === $post->post_status ) {
 			$post->post_status = 'publish';
 		}
 	}
@@ -144,9 +144,8 @@ class Sponsorship_Manager_Archiveless {
 		// show archiveless when NOT a main query or a feed...
 		if ( ! $query->is_main_query() && ! $query->is_feed() ) {
 			$hide_archiveless = false;
-		}
-		// show archiveless when main query for singular or campaign archive
-		elseif ( $query->is_main_query() && ( $query->is_singular() || $query->is_tax( SPONSORSHIP_MANAGER_CAMPAIGN_TAXONOMY ) ) ) {
+		} elseif ( $query->is_main_query() && ( $query->is_singular() || $query->is_tax( SPONSORSHIP_MANAGER_CAMPAIGN_TAXONOMY ) ) ) {
+			// show archiveless when main query for singular or campaign archive
 			$hide_archiveless = false;
 		}
 
