@@ -526,7 +526,8 @@ add_action( 'init', 'sponsorship_manager_setup_ad_slots', 11 );
  * @return array List of IDs
  */
 function sponsorship_manager_has_eligible_posts( $slot_name, $args = false ) {
-	return ! empty( Sponsorship_Manager_Ad_Slots::instance()->get_eligible_posts( $slot_name, $args ) );
+	$posts = Sponsorship_Manager_Ad_Slots::instance()->get_eligible_posts( $slot_name, $args );
+	return ! empty( $posts );
 }
 
 /**
